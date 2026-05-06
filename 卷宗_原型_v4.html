@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>执法办案智能辅助系统 · 原型 v4</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif; color: #111827; background: #f5f7fa; overflow: hidden; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* ============ 顶部栏 ============ */
+.topbar {
+  height: 56px; background: #fff; border-bottom: 1px solid #e5e7eb;
+  display: flex; align-items: center; padding: 0 20px; gap: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04); z-index: 10; position: relative;
+}
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand-logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg,#3b82f6,#2563eb);
+  display: flex; align-items: center; justify-content: center; color:#fff; font-size: 16px;
+}
+.brand-name { font-size: 16px; font-weight: 700; color: #1e3a8a; letter-spacing: 0.5px; }
+.case-meta { display: flex; gap: 18px; font-size: 14px; align-items: center; }
+.case-title { display: flex; align-items: center; gap: 10px; }
+.case-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background-image: url('assets/嫌疑人人像.jpg'); background-size: cover; background-position: center;
+  border: 2px solid #e5e7eb;
+}
+.case-meta span.lbl { color: #6b7280; margin-right: 4px; font-weight: 700; }
+.case-meta span.val { color: #111827; font-weight: 500; }
+.stage-chips { display: flex; gap: 4px; }
+.chip {
+  height: 26px; padding: 0 12px; border-radius: 13px; font-size: 12px;
+  display: flex; align-items: center; background: #f3f4f6; color: #6b7280;
+}
+.chip.done { background: #dcfce7; color: #15803d; }
+.chip.active { background: #2563eb; color: #fff; font-weight: 600; }
+.progress-ring {
+  width: 44px; height: 44px; position: relative;
+}
+.progress-ring svg { transform: rotate(-90deg); }
+.progress-ring .num {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #111827;
+}
+.miss-pill {
+  background: #fee2e2; color: #b91c1c; font-size: 11px; padding: 4px 10px;
+  border-radius: 12px; font-weight: 500;
+}
+.miss-pill.ok { background: #dcfce7; color: #15803d; }
+.main-rel {
+  font-size: 12px; padding: 4px 10px; border-radius: 12px;
+  background: #fee2e2; color: #b91c1c; font-weight: 500;
+}
+.main-rel.yellow { background: #fef3c7; color: #a16207; }
+.main-rel.green { background: #dcfce7; color: #15803d; }
+.spacer { flex: 1; }
+
+/* ============ 工作区案件信息条 ============ */
+.workspace-casebar {
+  width: 100%; min-height: 64px; background: #fff; border-bottom: 1px solid #e5e7eb;
+  display: flex; align-items: center; padding: 0 24px; gap: 28px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03); flex-shrink: 0;
+}
+
+/* ============ 主体三段 ============ */
+.app { height: calc(100vh - 56px); display: flex; }
+
+/* ============ 左侧聊天 ============ */
+.chat {
+  width: 360px; background: #fff; border-right: 1px solid #e5e7eb;
+  display: flex; flex-direction: column;
+}
+.chat-head {
+  height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.bot-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg,#22d3ee,#3b82f6);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+}
+.bot-name { font-size: 14px; font-weight: 600; }
+.bot-status { font-size: 11px; color: #16a34a; }
+.bot-status::before { content:"●"; margin-right: 4px; }
+
+.msgs { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 14px; }
+.msg { display: flex; gap: 8px; }
+.msg.user { flex-direction: row-reverse; }
+.msg .av {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color:#fff; font-size: 12px; font-weight: 600;
+}
+.msg.bot .av { background: linear-gradient(135deg,#22d3ee,#3b82f6); }
+.msg.user .av { background: #2563eb; }
+.bubble {
+  max-width: 260px; padding: 10px 12px; border-radius: 12px; font-size: 13px;
+  line-height: 1.6; background: #f3f4f6; color: #111827;
+}
+.msg.user .bubble { background: #2563eb; color: #fff; }
+.msg.bot .bubble { background: #fff; border: 1px solid #e5e7eb; }
+.bubble b { color: #111827; }
+.bubble .ts { display: block; font-size: 10px; color: #9ca3af; margin-top: 4px; }
+.msg.user .bubble .ts { color: rgba(255,255,255,.7); }
+
+/* 强提示矛盾消息 */
+.bubble.alert {
+  border-left: 4px solid #ef4444 !important; padding-left: 10px;
+  background: #fff;
+}
+.bubble.alert .alert-title {
+  color: #b91c1c; font-weight: 700; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 4px;
+}
+.bubble.alert .conflict-row {
+  display: flex; gap: 4px; margin: 6px 0;
+}
+.bubble.alert .conflict-col {
+  flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 8px;
+  font-size: 11px; background: #f9fafb;
+}
+.bubble.alert .conflict-col .src { color: #6b7280; font-size: 10px; }
+.bubble.alert .conflict-col .val { font-weight: 600; color: #111827; }
+.bubble.alert .investigation {
+  background: #eff6ff; border-left: 3px solid #3b82f6;
+  padding: 6px 8px; margin: 6px 0; font-size: 11px; border-radius: 4px;
+}
+.bubble.alert .tasks {
+  font-size: 11px; color: #4b5563; margin-top: 4px;
+}
+.bubble.alert .tasks::before { content: "📋 "; }
+.bubble.alert .view-conflict {
+  color: #2563eb; font-size: 12px; cursor: pointer;
+  margin-top: 8px; display: inline-block; font-weight: 500;
+}
+.bubble.alert .view-conflict:hover { text-decoration: underline; }
+
+/* 演示步进器 */
+.stepper {
+  border-top: 1px solid #e5e7eb;
+  padding: 10px 12px; background: #fafbfc;
+}
+.stepper-label { font-size: 10px; color: #6b7280; margin-bottom: 6px; }
+.stepper-pills { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+.step-pill {
+  flex-shrink: 0; padding: 5px 10px; border-radius: 12px;
+  font-size: 11px; background: #f3f4f6; color: #6b7280; cursor: pointer; border: 1px solid transparent;
+  transition: all .2s;
+}
+.step-pill.active { background: #2563eb; color: #fff; font-weight: 600; }
+.step-pill.done { background: #dcfce7; color: #15803d; }
+.step-pill:hover:not(.active) { background: #e5e7eb; }
+
+.input-area {
+  height: 60px; padding: 10px 12px; border-top: 1px solid #e5e7eb;
+  display: flex; align-items: center; gap: 8px;
+}
+.input-area input {
+  flex: 1; height: 36px; border: 1px solid #e5e7eb; border-radius: 18px;
+  padding: 0 14px; font-size: 13px; outline: none;
+}
+.input-area input:focus { border-color: #3b82f6; }
+.input-area .icon-btn {
+  width: 36px; height: 36px; border-radius: 50%; background: #f3f4f6;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.input-area .send-btn { background: #2563eb; color: #fff; }
+
+/* ============ 右侧工作区 ============ */
+.workspace { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.tabs {
+  height: 44px; background: #fff; border-bottom: 1px solid #e5e7eb;
+  display: none; align-items: center; padding: 0 16px; gap: 4px;
+}
+.tab {
+  padding: 0 14px; height: 32px; display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: #6b7280; border-radius: 6px; cursor: pointer;
+}
+.tab .badge {
+  background: #f3f4f6; color: #4b5563; font-size: 10px;
+  padding: 1px 6px; border-radius: 8px; font-weight: 600;
+}
+.tab.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+.tab.active .badge { background: #2563eb; color: #fff; }
+
+.tab-content { flex: 1; overflow: hidden; position: relative; }
+.tab-pane { display: none; height: 100%; }
+.tab-pane.active { display: flex; flex-direction: column; }
+
+/* ============ 违法事实总结 ============ */
+.fact-summary {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 96px); max-width: 1350px;
+  background: rgba(255,255,255,.96); border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 12px 16px; z-index: 60;
+  box-shadow: 0 10px 28px rgba(15,23,42,.10);
+  backdrop-filter: blur(8px);
+}
+.fact-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.fact-title {
+  font-size: 13px; font-weight: 600; color: #111827;
+  display: flex; align-items: center; gap: 6px;
+}
+.fact-title .linear-icon {
+  width: 16px; height: 16px; color: #2563eb; flex-shrink: 0;
+}
+.fact-title .ver {
+  background: #dbeafe; color: #1e40af; font-size: 11px;
+  padding: 1px 8px; border-radius: 8px; margin-left: 4px;
+}
+.fact-history-btn {
+  font-size: 12px; color: #6b7280; cursor: pointer;
+}
+.fact-history-btn:hover { color: #2563eb; }
+.fact-body {
+  font-size: 14px; color: #1f2937; line-height: 1.7;
+  min-height: 28px; max-height: 100px; overflow: auto;
+}
+.fact-body .new {
+  background: #dbeafe; color: #1e40af; padding: 0 2px; border-radius: 3px;
+  animation: highlight 3s ease forwards;
+}
+@keyframes highlight {
+  0% { background: #93c5fd; }
+  100% { background: transparent; color: #1f2937; }
+}
+
+/* ============ 图谱画布（支持缩放拖动） ============ */
+.canvas-wrap {
+  flex: 1; position: relative; overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(59,130,246,.06), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(34,197,94,.05), transparent 60%),
+    #f5f7fa;
+  cursor: grab;
+}
+.canvas-wrap.grabbing { cursor: grabbing; }
+.canvas-wrap::before {
+  content: ""; position: absolute; inset: -2000px; pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+/* 视口容器：承载SVG + 节点层，统一transform */
+.viewport {
+  position: absolute; left: 0; top: 0;
+  width: 1600px; height: 800px;
+  transform-origin: 0 0;
+  transition: transform 200ms ease;
+}
+.viewport.dragging { transition: none; }
+#graph { width: 100%; height: 100%; display: block; }
+
+/* 缩放控制条 */
+.zoom-bar {
+  position: absolute; left: 16px; bottom: 16px;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  display: flex; align-items: center; padding: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06); z-index: 50;
+}
+.zoom-bar button {
+  width: 28px; height: 28px; border-radius: 6px; font-size: 14px;
+  color: #4b5563; transition: background .15s;
+}
+.zoom-bar button:hover { background: #f3f4f6; }
+.zoom-bar .zoom-val {
+  min-width: 48px; text-align: center; font-size: 12px; color: #4b5563;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 节点（HTML，绝对定位） */
+.nodes-layer {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.node {
+  position: absolute; pointer-events: auto;
+  background: #fff; border: 2px solid #eab308; border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.06);
+  padding: 10px 12px; cursor: pointer;
+  transition: box-shadow 200ms, border-color 200ms, transform 150ms;
+  display: flex; flex-direction: column;
+}
+.node:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.1); }
+.node.green { border-color: #22c55e; }
+.node.red { border-color: #ef4444; animation: redblink 2s linear infinite; }
+@keyframes redblink {
+  0%, 100% { box-shadow: 0 4px 12px rgba(239,68,68,.4); border-color: #ef4444; }
+  50% { box-shadow: 0 4px 18px rgba(239,68,68,.7); border-color: #fca5a5; }
+}
+
+.node-head {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+.node-title { font-size: 13px; font-weight: 600; }
+.node-status {
+  height: 16px; padding: 0 7px; border-radius: 8px; font-size: 10px;
+  display: inline-flex; align-items: center;
+}
+.node-status.yellow { background: #fef3c7; color: #a16207; }
+.node-status.green { background: #dcfce7; color: #15803d; }
+.node-status.red { background: #fee2e2; color: #b91c1c; }
+
+.node-body { display: flex; gap: 8px; flex: 1; align-items: stretch; }
+.node-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.node-key { font-size: 12px; font-weight: 500; color: #111827; line-height: 1.4; }
+.node-sub { font-size: 10px; color: #6b7280; margin-top: 3px; line-height: 1.4; }
+.node-info .three-badges { margin-top: auto; padding-top: 8px; }
+.node-photo {
+  width: 72px; height: 72px; border-radius: 7px; background: #f3f4f6;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #9ca3af; flex-shrink: 0;
+  background-size: cover; background-position: center;
+  box-sizing: border-box; position: relative; overflow: hidden;
+}
+.node-photo.placeholder {
+  width: 72px; height: 72px;
+  background: repeating-linear-gradient(45deg, #f9fafb, #f9fafb 6px, #f3f4f6 6px, #f3f4f6 12px);
+  border: 1px dashed #d1d5db;
+  flex-direction: column; gap: 2px; color: #9ca3af; font-size: 10px;
+  box-sizing: border-box;
+}
+.node-photo.placeholder .icon { font-size: 24px; opacity: .55; line-height: 1; }
+
+/* 证人视频小部件（72×72 正方形） */
+.node-video {
+  width: 72px; height: 72px; flex-shrink: 0;
+  border-radius: 7px; overflow: hidden;
+  position: relative; background: #000;
+  cursor: pointer;
+}
+.node-video video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.node-video .vd-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(0,0,0,.25), rgba(0,0,0,.55));
+  transition: background .2s;
+}
+.node-video.playing .vd-overlay { background: rgba(0,0,0,0); }
+.node-video .play-icon {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,.9); color: #1e40af;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.node-video.playing .play-icon { display: none; }
+.node-video .vd-tag {
+  position: absolute; top: 3px; left: 3px;
+  font-size: 8px; color: #fff; background: rgba(0,0,0,.5);
+  padding: 1px 5px; border-radius: 5px;
+}
+.node-video .vd-time {
+  position: absolute; bottom: 3px; right: 3px;
+  font-size: 8px; color: #fff; background: rgba(0,0,0,.55);
+  padding: 1px 4px; border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.node-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 8px; padding-top: 7px; border-top: 1px dashed #f3f4f6;
+}
+.three-bar { display: flex; gap: 3px; }
+.three-bar .seg {
+  width: 28px; height: 16px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+.three-bar .seg.g { background: linear-gradient(135deg,#4ade80,#16a34a); }
+.three-bar .seg.y { background: linear-gradient(135deg,#fde047,#d97706); }
+.three-bar .seg.r { background: linear-gradient(135deg,#f87171,#b91c1c); }
+
+.three-badges { display: flex; gap: 9px; }
+.badge-emoji {
+  display: flex; align-items: center; gap: 2px; font-size: 11px;
+}
+.badge-emoji .num { font-size: 11px; font-weight: 700; color: #111827; }
+.badge-emoji.gray { opacity: .35; }
+.badge-emoji.gray .num { color: #9ca3af; font-weight: 500; }
+.badge-emoji:hover { transform: scale(1.05); }
+
+/* 原地展开态 */
+.node {
+  transition: left 380ms cubic-bezier(.4,.0,.2,1),
+              top 380ms cubic-bezier(.4,.0,.2,1),
+              width 380ms cubic-bezier(.4,.0,.2,1),
+              height 380ms cubic-bezier(.4,.0,.2,1),
+              box-shadow 200ms,
+              border-color 200ms;
+}
+.node.expanded {
+  z-index: 100;
+  cursor: default;
+  box-shadow: 0 16px 40px rgba(0,0,0,.18) !important;
+  padding: 14px 16px !important;
+  overflow: hidden;
+}
+.node.expanded:hover { transform: none; }
+.node-detail { display: none; }
+.node.expanded .node-detail {
+  display: block; margin-top: 12px;
+  max-height: 360px; overflow-y: auto; padding-right: 6px;
+  font-size: 12px;
+}
+.node.expanded .node-foot { margin-top: 8px; padding-top: 8px; }
+.node.expanded .node-title { font-size: 15px; }
+.node.expanded .node-key { font-size: 14px; }
+.node.expanded .node-sub { font-size: 11px; }
+.node.expanded .node-photo,
+.node.expanded .node-video { width: 110px; height: 110px; }
+.node-close-x {
+  position: absolute; top: 10px; right: 10px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #f3f4f6; color: #6b7280; cursor: pointer;
+  display: none; align-items: center; justify-content: center; font-size: 16px;
+  z-index: 5;
+}
+.node-close-x:hover { background: #e5e7eb; }
+.node.expanded .node-close-x { display: flex; }
+
+/* 模态框内复用绽放详情样式 */
+.detail-section { margin-top: 14px; }
+.detail-section-head {
+  font-size: 12px; font-weight: 700; color: #4b5563;
+  padding-bottom: 6px; border-bottom: 1px solid #f3f4f6;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.detail-section-head .toggle { color: #9ca3af; font-size: 11px; cursor: pointer; }
+.evidence-card {
+  background: #fafbfc; border: 1px solid #f3f4f6; border-radius: 8px;
+  padding: 8px 10px; margin-top: 8px; font-size: 12px;
+}
+.evidence-card .ev-head {
+  display: flex; gap: 6px; align-items: center; margin-bottom: 4px;
+}
+.evidence-card .ev-name { font-weight: 600; color: #111827; }
+.evidence-card .ev-tag {
+  font-size: 10px; padding: 1px 6px; border-radius: 6px;
+  background: #e0e7ff; color: #3730a3;
+}
+.evidence-card .ev-desc { color: #4b5563; line-height: 1.5; margin-bottom: 6px; }
+.evidence-card .mini-bar { display: flex; gap: 3px; }
+.evidence-card .mini-bar .seg {
+  font-size: 9px; padding: 1px 5px; border-radius: 8px; color: #fff; font-weight: 600;
+}
+
+.gap-card {
+  background: #fff7ed; border: 1px dashed #fdba74; border-radius: 8px;
+  padding: 8px 10px; margin-top: 8px; font-size: 12px;
+}
+.gap-card .gap-title { font-weight: 600; color: #c2410c; }
+.gap-card .gap-action { color: #4b5563; margin-top: 4px; font-size: 11px; }
+.gap-card .gap-task-tag {
+  display: inline-block; margin-top: 6px; font-size: 11px;
+  background: #e0e7ff; color: #4338ca; padding: 3px 10px; border-radius: 10px;
+  font-weight: 500;
+}
+
+.conflict-card {
+  background: #fef9f9; border: 1px solid #fecaca; border-radius: 8px;
+  padding: 10px; margin-top: 8px;
+}
+.conflict-card.resolved { background: #f9fafb; border-color: #e5e7eb; }
+.cf-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.conflict-card .cf-title { font-weight: 600; color: #b91c1c; font-size: 12px; }
+.conflict-card.resolved .cf-title { color: #6b7280; }
+.cf-detail-btn {
+  height: 22px; padding: 0 8px; border-radius: 11px;
+  background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: 700;
+}
+.cf-detail-btn:hover { background: #dbeafe; }
+.cf-vs { display: flex; gap: 6px; margin: 6px 0; }
+.cf-vs > div {
+  flex: 1; background: #fff; border: 1px solid #e5e7eb;
+  border-radius: 6px; padding: 6px 8px;
+}
+.cf-vs .src { font-size: 10px; color: #6b7280; }
+.cf-vs .val { font-size: 12px; font-weight: 600; color: #111827; }
+.cf-investigation {
+  background: #eff6ff; border-left: 3px solid #3b82f6;
+  padding: 6px 8px; margin: 8px 0; font-size: 11px; border-radius: 4px;
+}
+.cf-investigation .lbl { color: #1e40af; font-weight: 600; }
+.cf-tasks {
+  background: #fff; border: 1px solid #e5e7eb;
+  padding: 6px 8px; margin: 8px 0; font-size: 11px; border-radius: 4px;
+}
+.cf-tasks .lbl { color: #4b5563; font-weight: 600; }
+.cf-tasks ul { list-style: none; margin-top: 4px; }
+.cf-tasks li { color: #4b5563; padding-left: 14px; position: relative; }
+.cf-tasks li::before { content: "·"; color: #2563eb; position: absolute; left: 6px; font-weight: 700; }
+.cf-actions { display: flex; gap: 8px; margin-top: 10px; }
+.cf-actions button {
+  flex: 1; height: 30px; border-radius: 6px; font-size: 12px;
+}
+.cf-actions .confirm-btn { background: #16a34a; color: #fff; }
+.cf-actions .confirm-btn:hover { background: #15803d; }
+.cf-actions .reject-btn { background: #fff; border: 1px solid #d1d5db; color: #4b5563; }
+
+/* 删除原 close-x（节点上的关闭叉，原地展开版用 .node-close-x） */
+.close-x { display: none !important; }
+
+/* 图例 */
+.legend {
+  position: absolute; right: 16px; bottom: 16px;
+  background: rgba(255,255,255,.95); border: 1px solid #e5e7eb;
+  border-radius: 10px; padding: 10px 12px;
+  font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  width: 220px;
+}
+.legend h4 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #111827; }
+.legend-item {
+  display: flex; align-items: center; gap: 6px; margin: 4px 0; color: #4b5563;
+}
+.legend-line {
+  width: 24px; height: 2px; background: #4b5563;
+}
+.legend-line.thick { height: 3px; }
+.legend-line.thin { height: 1.5px; background: #94a3b8; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.g { background: #22c55e; }
+.dot.y { background: #eab308; }
+.dot.r { background: #ef4444; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
+  background: #111827; color: #fff; padding: 10px 18px; border-radius: 8px;
+  font-size: 13px; opacity: 0; transition: all 300ms ease;
+  z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: #b91c1c; }
+.toast.success { background: #16a34a; }
+
+/* Tooltip */
+.tooltip {
+  position: fixed; background: #111827; color: #fff; padding: 6px 10px;
+  border-radius: 6px; font-size: 11px; pointer-events: none; opacity: 0;
+  transition: opacity 200ms; z-index: 300; max-width: 220px;
+}
+.tooltip.show { opacity: 1; }
+
+/* History drawer */
+.drawer {
+  position: fixed; right: -400px; top: 56px; bottom: 0; width: 380px;
+  background: #fff; border-left: 1px solid #e5e7eb;
+  transition: right 300ms ease;
+  box-shadow: -4px 0 20px rgba(0,0,0,.08);
+  z-index: 150; display: flex; flex-direction: column;
+}
+.drawer.show { right: 0; }
+.drawer-head {
+  height: 48px; padding: 0 16px; display: flex; align-items: center;
+  justify-content: space-between; border-bottom: 1px solid #e5e7eb;
+  font-size: 14px; font-weight: 600;
+}
+.drawer-close { font-size: 18px; color: #6b7280; cursor: pointer; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+.ver-item {
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  margin-bottom: 4px; font-size: 12px;
+}
+.ver-item:hover { background: #f3f4f6; }
+.ver-item.active { background: #eff6ff; color: #2563eb; }
+.ver-item .vt { font-weight: 600; }
+.ver-item .vd { font-size: 11px; color: #6b7280; margin-top: 2px; }
+.ver-preview {
+  margin-top: 14px; padding: 12px; background: #f9fafb;
+  border-radius: 8px; font-size: 13px; line-height: 1.6;
+}
+
+/* 材料抽屉 */
+.material-drawer {
+  position: fixed; right: -440px; top: 56px; bottom: 0; width: 420px;
+  background: #fff; border-left: 1px solid #e5e7eb;
+  transition: right 300ms ease;
+  box-shadow: -4px 0 24px rgba(0,0,0,.10);
+  z-index: 170; display: flex; flex-direction: column;
+}
+.material-drawer.show { right: 0; }
+.material-drawer .drawer-body { padding: 14px 16px; }
+.material-panel {
+  border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px;
+  background: linear-gradient(180deg,#fff,#f8fafc);
+}
+.material-panel:hover { border-color: #93c5fd; box-shadow: 0 8px 22px rgba(37,99,235,.10); }
+.material-type {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 9px;
+  border-radius: 11px; background: #eff6ff; color: #1d4ed8;
+  font-size: 11px; font-weight: 700; margin-bottom: 8px;
+}
+.material-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.material-path { font-size: 11px; color: #6b7280; margin-bottom: 12px; word-break: break-all; }
+.material-kv { display: grid; grid-template-columns: 74px 1fr; gap: 8px 10px; font-size: 12px; line-height: 1.5; }
+.material-kv .k { color: #6b7280; }
+.material-kv .v { color: #111827; font-weight: 500; }
+.material-excerpt {
+  margin-top: 12px; padding: 10px 12px; border-left: 3px solid #2563eb;
+  background: #eff6ff; border-radius: 8px; font-size: 12px; line-height: 1.6; color: #1f2937;
+}
+.material-elements {
+  margin-top: 12px; border: 1px solid #e5e7eb; border-radius: 10px;
+  overflow: hidden; background: #fff;
+}
+.material-elements-title {
+  height: 34px; display: flex; align-items: center; padding: 0 12px;
+  background: #f8fafc; border-bottom: 1px solid #e5e7eb;
+  font-size: 12px; font-weight: 700; color: #111827;
+}
+.material-element-row {
+  display: grid; grid-template-columns: 74px 1fr; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid #f3f4f6;
+  font-size: 12px; line-height: 1.5;
+}
+.material-element-row:last-child { border-bottom: none; }
+.material-element-row .k { color: #1d4ed8; font-weight: 700; }
+.material-element-row .v { color: #374151; }
+.compare-table { margin-top: 12px; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+.compare-row { display: grid; grid-template-columns: 72px 1fr 1fr; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
+.compare-row:last-child { border-bottom: none; }
+.compare-row > div { padding: 8px 10px; line-height: 1.5; border-right: 1px solid #f3f4f6; }
+.compare-row > div:last-child { border-right: none; }
+.compare-row.head { background: #f8fafc; font-weight: 700; color: #111827; }
+.compare-row.diff { background: #fff7ed; }
+.compare-row .k { color: #1d4ed8; font-weight: 700; }
+.compare-row .bad { color: #b91c1c; font-weight: 700; }
+.compare-row .good { color: #15803d; font-weight: 700; }
+.material-open-btn {
+  margin-top: 12px; height: 32px; padding: 0 14px; border-radius: 8px;
+  background: #2563eb; color: #fff; font-size: 12px; font-weight: 700;
+}
+.material-open-btn:hover { background: #1d4ed8; }
+.mat-link {
+  color: #2563eb; cursor: pointer; font-weight: 600;
+}
+.mat-link:hover { text-decoration: underline; }
+.media-link-btn {
+  position: absolute; right: 4px; bottom: 4px;
+  height: 18px; padding: 0 6px; border-radius: 9px;
+  background: rgba(17,24,39,.72); color: #fff; font-size: 9px;
+}
+
+/* 其他 Tab 简化展示 */
+.placeholder {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px; color: #9ca3af; font-size: 13px;
+}
+.placeholder .icon { font-size: 40px; }
+
+/* 证据池/任务/日志简易表 */
+.list-pane { padding: 16px; overflow-y: auto; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.list-card {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+  padding: 12px 14px; box-shadow: 0 2px 6px rgba(0,0,0,.04);
+}
+.list-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.list-card .meta { font-size: 11px; color: #6b7280; margin-bottom: 6px; }
+.list-card .desc { font-size: 12px; color: #4b5563; line-height: 1.6; }
+.list-card .three-tags { display: flex; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
+.tag-mini { font-size: 10px; padding: 2px 6px; border-radius: 6px; color: #fff; font-weight: 600; }
+
+.log-line {
+  background: #fff; border-left: 3px solid #2563eb; padding: 10px 14px;
+  margin-bottom: 8px; border-radius: 0 8px 8px 0; font-size: 12px;
+}
+.log-line.system { border-left-color: #16a34a; }
+.log-line.human { border-left-color: #eab308; }
+.log-line .lt { font-weight: 600; color: #111827; }
+.log-line .lm { color: #4b5563; line-height: 1.7; margin-top: 4px; }
+.log-line .lt-time { color: #9ca3af; font-size: 11px; margin-right: 6px; }
+.log-line .role-tag {
+  font-size: 10px; padding: 1px 6px; border-radius: 4px; margin-left: 6px;
+}
+.log-line .role-tag.s { background: #dcfce7; color: #15803d; }
+.log-line .role-tag.h { background: #fef3c7; color: #a16207; }
+</style>
+</head>
+<body>
+
+<!-- ============ 顶部栏 ============ -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-logo">⚖</div>
+    <div class="brand-name">执法办案</div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ============ 主体 ============ -->
+<div class="app">
+  <!-- 左侧聊天 -->
+  <div class="chat">
+    <div class="chat-head">
+      <div class="bot-avatar">威</div>
+      <div>
+        <div class="bot-name">小威 · 智能办案助手</div>
+        <div class="bot-status">在线</div>
+      </div>
+    </div>
+    <div class="msgs" id="msgs">
+      <!-- 消息由JS填充 -->
+    </div>
+    <!-- 演示步进器 -->
+    <div class="stepper">
+      <div class="stepper-label">演示阶段（点击切换）</div>
+      <div class="stepper-pills" id="stepperPills">
+        <div class="step-pill active" data-step="1">① 警情接入</div>
+        <div class="step-pill" data-step="2">② 程序核验</div>
+        <div class="step-pill" data-step="3">③ 受害人笔录</div>
+        <div class="step-pill" data-step="4">④ 诊断证明</div>
+        <div class="step-pill" data-step="5">⑤ 自书</div>
+        <div class="step-pill" data-step="6">⑥ 嫌疑人笔录</div>
+        <div class="step-pill" data-step="7">⑦ 处罚签发</div>
+      </div>
+    </div>
+    <div class="input-area">
+      <input type="text" placeholder="向小威提问或输入指令…">
+      <button class="icon-btn" title="上传">📎</button>
+      <button class="icon-btn send-btn" title="发送">➤</button>
+    </div>
+  </div>
+
+  <!-- 右侧工作区 -->
+  <div class="workspace">
+    <div class="tabs">
+      <div class="tab active" data-tab="graph">🔗 图谱</div>
+      <div class="tab" data-tab="doc">📄 文书<span class="badge">3</span></div>
+      <div class="tab" data-tab="evi">🧾 证据池<span class="badge">7</span></div>
+      <div class="tab" data-tab="task">🗂 任务看板<span class="badge">2</span></div>
+      <div class="tab" data-tab="log">📋 决策日志</div>
+    </div>
+
+    <div class="tab-content">
+      <!-- 图谱 Tab -->
+      <div class="tab-pane active" data-pane="graph">
+        <div class="workspace-casebar">
+          <div class="case-meta">
+            <div class="case-title"><span class="case-avatar"></span><span class="val" style="font-weight: 700;">周枫殴打他人案</span></div>
+            <div><span class="val">2026·公（行）字第 0086 号</span></div>
+            <div><span class="lbl">承办:</span><span class="val">赵武</span></div>
+          </div>
+          <div class="stage-chips">
+            <div class="chip done">S2 行政立案</div>
+            <div class="chip active" id="chipStage">S3 案件办理</div>
+            <div class="chip">END 结案</div>
+          </div>
+          <div class="progress-ring">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+              <circle id="progArc" cx="22" cy="22" r="18" fill="none" stroke="#eab308" stroke-width="3" stroke-dasharray="113.1" stroke-dashoffset="42.4" stroke-linecap="round"/>
+            </svg>
+            <div class="num" id="progNum">5/8</div>
+          </div>
+          <div class="miss-pill" id="missPill">缺·自书 缺·诊断证明 缺·调解</div>
+          <div class="spacer"></div>
+          <div class="main-rel yellow" id="mainRel">补强推进中</div>
+        </div>
+
+        <!-- 画布 -->
+        <div class="canvas-wrap" id="canvasWrap">
+          <!-- 违法事实总结 -->
+          <div class="fact-summary">
+            <div class="fact-head">
+              <div class="fact-title"><svg class="linear-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5.2 6.2h5.6M5.2 9.8h3.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>违法事实总结<span class="ver" id="factVer">v2</span></div>
+              <div class="fact-history-btn" onclick="toggleHistory()">历史 ▾</div>
+            </div>
+            <div class="fact-body" id="factBody">
+              2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，<span class="new">周枫徒手扇打李江左脸一次。</span>
+            </div>
+          </div>
+          <div class="viewport" id="viewport">
+            <svg id="graph" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid meet" style="position:absolute;left:0;top:0;width:1600px;height:800px;pointer-events:none;">
+              <defs>
+                <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#22c55e"/>
+                </marker>
+                <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#eab308"/>
+                </marker>
+                <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="#ef4444"/>
+                </marker>
+              </defs>
+              <g id="edges"></g>
+              <g id="edgeLabels"></g>
+            </svg>
+            <div class="nodes-layer" id="nodesLayer"></div>
+          </div>
+
+          <!-- 缩放控制 -->
+          <div class="zoom-bar">
+            <button onclick="zoomBy(-0.1)" title="缩小">−</button>
+            <span class="zoom-val" id="zoomVal">100%</span>
+            <button onclick="zoomBy(0.1)" title="放大">+</button>
+            <button onclick="resetView()" title="复位">⟲</button>
+            <button onclick="fitView()" title="适配">⛶</button>
+          </div>
+
+          <!-- 图例 -->
+          <div class="legend">
+            <h4>图例</h4>
+            <div class="legend-item"><div class="legend-line thick" style="background:#eab308"></div>因果连线 · 推导（粗实线）</div>
+            <div class="legend-item"><div class="legend-line thin"></div>印证连线（细实线）</div>
+            <div class="legend-item"><div class="dot g"></div>已证齐备 <div class="dot y" style="margin-left:8px"></div>补强中 <div class="dot r" style="margin-left:8px"></div>异常</div>
+            <div class="legend-item">👍 已证 / ❓ 缺口 / ⚡ 矛盾</div>
+            <div class="legend-item" style="color:#9ca3af;font-size:10px;margin-top:6px;">单击节点 → 详情<br>滚轮缩放 · 拖动平移</div>
+          </div>
+        </div>
+        <!-- 节点详情：原地展开，无模态框 -->
+      </div>
+
+      <!-- 文书 Tab -->
+      <div class="tab-pane" data-pane="doc">
+        <div class="list-pane">
+          <div class="card-grid">
+            <div class="list-card" onclick="openMaterialDrawerByName('警情概述')" style="cursor:pointer;">
+              <h4>受案登记表</h4>
+              <div class="meta">已签发 · 2026-04-06 10:05</div>
+              <div class="desc">系统根据警情自动填充，民警审核通过。</div>
+            </div>
+            <div class="list-card" onclick="openMaterialDrawerByName('身份核验回写')" style="cursor:pointer;">
+              <h4>立案审批表</h4>
+              <div class="meta">已签发 · 2026-04-06 10:18</div>
+              <div class="desc">程序性核验通过后由系统起草。</div>
+            </div>
+            <div class="list-card" onclick="openMaterialDrawerByName('李江询问笔录')" style="cursor:pointer;">
+              <h4>询问笔录（李江）</h4>
+              <div class="meta">已生成 · 2026-04-06 10:32</div>
+              <div class="desc">笔录 Agent 回写，已自动入证据池。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 证据池 Tab -->
+      <div class="tab-pane" data-pane="evi">
+        <div class="list-pane">
+          <div class="card-grid" id="eviGrid"></div>
+        </div>
+      </div>
+
+      <!-- 任务看板 Tab -->
+      <div class="tab-pane" data-pane="task">
+        <div class="list-pane">
+          <div class="card-grid" id="taskGrid"></div>
+        </div>
+      </div>
+
+      <!-- 决策日志 Tab -->
+      <div class="tab-pane" data-pane="log">
+        <div class="list-pane" id="logList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 历史抽屉 -->
+<div class="drawer" id="histDrawer">
+  <div class="drawer-head">
+    <span>违法事实 · 历史版本</span>
+    <span class="drawer-close" onclick="toggleHistory()">×</span>
+  </div>
+  <div class="drawer-body" id="histBody"></div>
+</div>
+
+<!-- 材料抽屉 -->
+<div class="material-drawer" id="materialDrawer">
+  <div class="drawer-head">
+    <span>材料核心要素</span>
+    <span class="drawer-close" onclick="closeMaterialDrawer()">×</span>
+  </div>
+  <div class="drawer-body" id="materialBody"></div>
+</div>
+
+<!-- Toast / Tooltip -->
+<div class="toast" id="toast"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ===== 节点数据（含 6 个步骤的状态切换）===== */
+/* ===== 节点布局：横向因果链（后果→工具→受害人→嫌疑人），印证节点上方挂接 =====
+   画布 viewport：1600 × 800（足够避让空间）
+   节点尺寸 240×~140，主链路 y=420 居中 */
+const NODES = {
+  conseq:  { id:'conseq',  title:'后果',     x:220,  y:280, w:240, h:160, photo:'assets/被害人伤情.JPG' },
+  tool:    { id:'tool',    title:'工具/手段', x:620,  y:280, w:240, h:160 },
+  victim:  { id:'victim',  title:'受害人',   x:220,  y:520, w:240, h:160, photo:'assets/被害人人像.JPG' },
+  suspect: { id:'suspect', title:'嫌疑人',   x:1020, y:280, w:240, h:160, photo:'assets/嫌疑人人像.jpg' },
+  time:    { id:'time',    title:'时间地点', x:220,  y:60,  w:240, h:160, photo:'assets/现场照片.jpg' },
+  witness: { id:'witness', title:'证人',     x:620,  y:60,  w:240, h:160, video:'assets/证人证言.mp4' },
+};
+
+/* ===== 6 阶段的演示数据 ===== */
+const STEPS = [
+  null, // 占位
+  { // 步骤 1：警情接入
+    progress:'2/8', mainRel:{cls:'',txt:'待查明'},
+    miss:'缺·自书 缺·诊断证明 缺·询问笔录',
+    factVer:'v1',
+    fact:'<span class="new">2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突。</span>',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'左脸红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[1,1,0] },
+      tool:    { state:'yellow', status:'补强中', key:'肢体冲突', sub:'警情概述+证人证言', bar:['y','g','g'], badges:[2,1,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·31岁', sub:'人像照片已采集·待身份核验', bar:['g','g','g'], badges:[1,2,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁', sub:'人像照片已采集·待身份核验', bar:['g','g','g'], badges:[1,2,0] },
+    },
+    msgs:[
+      {type:'bot', html:'警情已接入，固证精灵已采集 5 条原始证据，已自动构建 7 要素图谱。'},
+      {type:'bot', html:'当前主关系：<b>待查明</b>。请继续推进程序性核验。'},
+    ]
+  },
+  { // 步骤 2：程序核验
+    progress:'4/8', mainRel:{cls:'yellow',txt:'准备立案'},
+    miss:'缺·自书 缺·诊断证明 缺·询问笔录',
+    factVer:'v1',
+    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突。',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'左脸红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[1,1,0] },
+      tool:    { state:'yellow', status:'补强中', key:'肢体冲突', sub:'警情概述+证人证言', bar:['y','g','g'], badges:[2,1,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·31岁', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[2,1,0] },
+    },
+    msgs:[
+      {type:'bot', html:'已完成 4 项程序性核验：<b>身份/前科/管辖/治安期限</b>，全部通过。'},
+      {type:'bot', html:'已生成 <b>立案审批表</b>，请审核签发。'},
+      {type:'user', html:'已审核通过，立案签发。'},
+      {type:'bot', html:'立案完成，进入案件办理阶段（S3）。'},
+    ]
+  },
+  { // 步骤 3：笔录·矛盾（核心场景）
+    progress:'5/8', mainRel:{cls:'yellow',txt:'补强推进中'},
+    miss:'缺·自书 缺·诊断证明',
+    factVer:'v2',
+    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，<span class="new">周枫徒手扇打李江左脸一次。</span>',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'左脸红肿', sub:'伤情照片+李江笔录', bar:['y','y','g'], badges:[2,1,0] },
+      tool:    { state:'yellow', status:'补强中', key:'徒手扇打', sub:'证人证言+李江笔录', bar:['y','g','g'], badges:[2,1,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯', sub:'身份核验·待询问', bar:['g','g','g'], badges:[2,1,0] },
+    },
+    msgs:[
+      {type:'bot', html:'笔录 Agent 已回写：<b>李江《询问笔录》</b>(E-006)。'},
+      {type:'bot', html:'李江笔录已入池，描述与证人证言一致：<b>徒手扇打左脸</b>。'},
+    ]
+  },
+  { // 步骤 4：诊断证明
+    progress:'6/8', mainRel:{cls:'yellow',txt:'补强推进中'},
+    miss:'缺·自书',
+    factVer:'v3',
+    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，<span class="new">致李江左脸软组织挫伤。</span>',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'yellow', status:'补强中', key:'徒手扇打', sub:'证人证言+李江笔录', bar:['y','g','g'], badges:[2,1,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯', sub:'身份核验·待询问', bar:['g','g','g'], badges:[2,1,0] },
+    },
+    msgs:[
+      {type:'bot', html:'诊断证明已上传 · <b>左脸软组织挫伤</b>（E-007）入池。'},
+      {type:'bot', html:'伤情照片真实性 🟡 → 🟢（因诊断证明印证）。'},
+      {type:'bot', html:'后果节点三性已齐备。违法事实总结升级到 v3。'},
+    ]
+  },
+  { // 步骤 5：自书+认罚
+    progress:'7/8', mainRel:{cls:'yellow',txt:'补强推进中'},
+    miss:'缺·周枫询问笔录',
+    factVer:'v3',
+    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'red',    status:'补强中', key:'徒手扇打 ⚡', sub:'自书"推搡" vs 笔录"扇打"', bar:['y','g','g'], badges:[3,0,1], isConflict:true },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯·认错认罚', sub:'已收自书·待询问笔录', bar:['y','g','g'], badges:[3,1,0] },
+    },
+    msgs:[
+      {type:'bot', html:'办案中心回写：<b>周枫自书</b>（E-009）。'},
+      {type:'bot', html:'⚠ 检测到冲突：周枫自书"<b>推搡</b>" vs 李江笔录"<b>扇打</b>"。'},
+      {type:'bot', html:'💡 智能分析：证人吴渔证言"看到周枫扇了李江一巴掌"印证<b>李江</b>陈述。'},
+      {type:'bot', html:'建议采信 <b>李江</b>：徒手扇打而非推搡。已派生任务：<b>对周枫制作询问笔录</b>，重点核实动作描述。'},
+      {type:'alert', focus:'tool'},
+    ]
+  },
+  { // 步骤 6：嫌疑人笔录（矛盾闭环）
+    progress:'8/8', mainRel:{cls:'green',txt:'事实查明'},
+    miss:'',
+    factVer:'v4',
+    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。<span class="new">案发后周枫主动到案，对违法事实供认不讳，认错认罚。</span>',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'green',  status:'已证实', key:'徒手扇打李江左脸一次', sub:'矛盾闭环（周枫笔录承认）', bar:['g','g','g'], badges:[4,0,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'green',  status:'已证实', key:'周枫·男·32岁·初犯·认错认罚', sub:'笔录+自书+认罚已采集', bar:['g','g','g'], badges:[4,0,0] },
+    },
+    msgs:[
+      {type:'bot', html:'笔录 Agent 已回写：<b>周枫《询问笔录》</b>(E-011)。'},
+      {type:'bot', html:'周枫承认：<b>"我扇了李江左脸一巴掌"</b>，与自书"推搡"陈述不一致，以笔录为准。'},
+      {type:'bot', html:'矛盾「动作描述冲突」已自动闭环（周枫笔录与李江笔录、证人证言一致）。'},
+      {type:'bot', html:'周枫已签认罚书（E-010）。适用快办程序 · 已生成《行政处罚决定书》草本，请审核。'},
+    ]
+  },
+  { // 步骤 7：处罚签发
+    progress:'8/8', mainRel:{cls:'green',txt:'事实查明'},
+    miss:'',
+    factVer:'v5',
+    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。案发后周枫主动到案，对违法事实供认不讳，认错认罚。<span class="new">依据《治安管理处罚法》第四十三条第一款，对周枫处以行政拘留五日。</span>',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'green',  status:'已证实', key:'徒手扇打李江左脸一次', sub:'多源证据印证一致', bar:['g','g','g'], badges:[4,0,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'询问笔录已采集·与笔录一致', bar:['g','g','g'], badges:[2,0,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'green',  status:'已证实', key:'周枫·男·32岁·初犯·认错认罚', sub:'已送达·执行中', bar:['g','g','g'], badges:[3,0,0] },
+    },
+    msgs:[
+      {type:'user', html:'审批通过。'},
+      {type:'bot', html:'《行政处罚决定书》已签发 · 已送达周枫 · 拘留 5 日。'},
+      {type:'bot', html:'案件办结。事实查明，进度 <b>8/8</b>。'},
+    ]
+  },
+];
+
+/* ===== 材料索引：证据/文书/视频统一链接到原文件 ===== */
+const MATERIALS = {
+  '警情概述': {
+    title:'接报案登记表', type:'文书', file:'assets/接报案登记表.pdf', owner:'李江', time:'2026-04-06 09:57', source:'电话报警',
+    elements:['时间','地点','人物','经过'], excerpt:'李江报警称被同事周枫殴打，地点为贵阳市南明区花果山小区2号楼113，脸部已经红肿。'
+  },
+  '伤情照片': {
+    title:'受害人伤情照片', type:'照片', file:'assets/被害人伤情.JPG', owner:'李江', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['对象','后果'], excerpt:'李江左脸可见红肿，与后续诊断结论及询问笔录描述相互印证。'
+  },
+  '受害人伤势照片': {
+    title:'受害人伤情照片', type:'照片', file:'assets/被害人伤情.JPG', owner:'李江', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['对象','后果'], excerpt:'李江左脸可见红肿，与后续诊断结论及询问笔录描述相互印证。'
+  },
+  '李江人像照片': {
+    title:'受害人人像', type:'照片', file:'assets/被害人人像.JPG', owner:'李江', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['对象','身份'], excerpt:'李江正面人像照片，用于受害人身份识别和材料归档。'
+  },
+  '嫌疑人人像照片': {
+    title:'嫌疑人人像', type:'照片', file:'assets/嫌疑人人像.jpg', owner:'周枫', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['人物','身份'], excerpt:'周枫正面人像照片，用于违法嫌疑人身份识别和材料归档。'
+  },
+  '现场照片': {
+    title:'现场照片', type:'照片', file:'assets/现场照片.jpg', owner:'', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['地点','经过'], excerpt:'会议室现场照片，会议桌与座椅布局可印证案发地点描述。'
+  },
+  '证人吴渔证言': {
+    title:'证人证言', type:'视频/证言', file:'assets/证人证言.mp4', owner:'吴渔', time:'2026-04-06 09:55', source:'音视频录制',
+    elements:['时间','地点','工具/经过'], excerpt:'证人称9点55分左右在贵阳市南明区花果山小区2号楼113看到周枫打了李江，现场未使用工具。'
+  },
+  '李江询问笔录': {
+    title:'受害人询问笔录', type:'笔录', file:'assets/受害人询问笔录.pdf', owner:'李江', time:'2026-04-06 10:32', source:'笔录 Agent',
+    elements:['时间','地点','受害人','工具/经过','后果'], excerpt:'李江陈述周枫先动手，徒手打其面部，自己没有还手，现场有同事吴渔看到。',
+    sevenElements:{
+      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
+      action:'周枫徒手扇打李江左脸一次', consequence:'李江左脸红肿，后续诊断为左脸软组织挫伤', witness:'吴渔在场目击并拉开双方'
+    }
+  },
+  '询问笔录': {
+    title:'受害人询问笔录', type:'笔录', file:'assets/受害人询问笔录.pdf', owner:'李江', time:'2026-04-06 10:32', source:'笔录 Agent',
+    elements:['受害人','工具/经过','后果'], excerpt:'受害人李江陈述面部被打、右脸红肿疼痛，并要求依法处理周枫。',
+    sevenElements:{
+      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
+      action:'周枫徒手扇打李江左脸一次', consequence:'李江左脸红肿，后续诊断为左脸软组织挫伤', witness:'吴渔在场目击并拉开双方'
+    }
+  },
+  '诊断证明': {
+    title:'医院伤情检查通知单', type:'诊断材料', file:'assets/医院伤情检查通知单.pdf', owner:'李江', time:'2026-04-06 11:11', source:'民警上传',
+    elements:['后果'], excerpt:'诊断结论为面部软组织挫伤，与伤情照片和受害人陈述一致。'
+  },
+  '周枫自书': {
+    title:'嫌疑人自书材料', type:'自书材料', file:'assets/嫌疑人自书材料.pdf', owner:'周枫', time:'2026-04-06 11:20', source:'办案中心回写',
+    elements:['嫌疑人','工具/经过','情节'], excerpt:'周枫自述与李江发生冲突，但动作描述与受害人笔录存在差异，触发矛盾核验。',
+    sevenElements:{
+      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
+      action:'自述为推搡，与询问笔录中的扇打表述不一致', consequence:'承认发生肢体冲突，伤害后果表述不足', witness:'未主动提及吴渔证言，需结合证人证言核验'
+    }
+  },
+  '自书材料·周枫': {
+    title:'嫌疑人自书材料', type:'自书材料', file:'assets/嫌疑人自书材料.pdf', owner:'周枫', time:'2026-04-06 11:20', source:'办案中心回写',
+    elements:['嫌疑人','工具/经过','情节'], excerpt:'周枫自述与李江发生冲突，但动作描述与受害人笔录存在差异，触发矛盾核验。',
+    sevenElements:{
+      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
+      action:'自述为推搡，与询问笔录中的扇打表述不一致', consequence:'承认发生肢体冲突，伤害后果表述不足', witness:'未主动提及吴渔证言，需结合证人证言核验'
+    }
+  },
+  '身份核验回写': {
+    title:'行政案件立案登记表', type:'文书', file:'assets/行政案件立案登记表.pdf', owner:'周枫 / 李江', time:'2026-04-06 10:18', source:'公安系统',
+    elements:['身份','程序'], excerpt:'登记案件基本信息、违法嫌疑人和受害人身份信息，支撑程序性核验。'
+  },
+  '李江身份核验': {
+    title:'行政案件立案登记表', type:'文书', file:'assets/行政案件立案登记表.pdf', owner:'李江', time:'2026-04-06 10:18', source:'公安系统',
+    elements:['受害人','身份'], excerpt:'记录受害人李江身份信息，支撑身份核验。'
+  },
+  '周枫身份核验': {
+    title:'行政案件立案登记表', type:'文书', file:'assets/行政案件立案登记表.pdf', owner:'周枫', time:'2026-04-06 10:18', source:'公安系统',
+    elements:['嫌疑人','身份'], excerpt:'记录违法嫌疑人周枫身份信息，支撑身份核验。'
+  },
+  '警情时间戳': {
+    title:'接报回执', type:'文书', file:'assets/接报回执.pdf', owner:'李江', time:'2026-04-06 09:57', source:'接报警系统',
+    elements:['时间','地点'], excerpt:'记录报警时间和出警地点，用于印证案发时间线。'
+  },
+  '地点GPS': {
+    title:'现场照片', type:'照片', file:'assets/现场照片.jpg', owner:'', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['地点'], excerpt:'现场材料印证案发地点为贵阳市南明区花果山小区2号楼113。'
+  },
+  '行政处罚决定书': {
+    title:'行政处罚决定书', type:'文书', file:'assets/行政处罚决定书.pdf', owner:'周枫', time:'2026-04-06 14:21', source:'系统生成',
+    elements:['处罚结果','法律依据'], excerpt:'依据《治安管理处罚法》第四十三条第一款，对周枫处以行政拘留五日。'
+  }
+};
+
+function materialForName(name) {
+  const clean = name.replace(/\([^)]*\)|（[^）]*）/g, '').trim();
+  return MATERIALS[clean] || Object.keys(MATERIALS).map(k => ({ k, m:MATERIALS[k] })).find(x => clean.includes(x.k) || x.k.includes(clean))?.m;
+}
+
+function escapeAttr(s) { return String(s || '').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeHtml(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function materialTitle(name) {
+  const m = materialForName(name);
+  return m ? `<span class="mat-link" onclick="openMaterialDrawerByName('${escapeAttr(name)}');event.stopPropagation();">${escapeHtml(name)}</span>` : escapeHtml(name);
+}
+
+function openMaterialDrawerByName(name) {
+  const m = materialForName(name);
+  if (!m) { showToast('未找到关联原文件', 'error'); return; }
+  openMaterialDrawer(m);
+}
+function openMaterialDrawer(m) {
+  $('#histDrawer').classList.remove('show');
+  const fields = [
+    ['关联人员', m.owner || '—'],
+    ['形成时间', m.time || '—'],
+    ['来源', m.source || '—'],
+    ['支撑要素', (m.elements || []).join('、') || '—']
+  ];
+  const seven = m.sevenElements ? [
+    ['时间', m.sevenElements.time],
+    ['地点', m.sevenElements.place],
+    ['主体', m.sevenElements.subject],
+    ['对象', m.sevenElements.object],
+    ['工具/经过', m.sevenElements.action],
+    ['后果', m.sevenElements.consequence]
+  ] : [];
+  $('#materialBody').innerHTML = `
+    <div class="material-panel">
+      <div class="material-type">${escapeHtml(m.type)}</div>
+      <div class="material-title">${escapeHtml(m.title)}</div>
+      <div class="material-path">${escapeHtml(m.file)}</div>
+      <div class="material-kv">
+        ${fields.map(([k,v]) => `<div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div>`).join('')}
+      </div>
+      <div class="material-excerpt">${escapeHtml(m.excerpt)}</div>
+      ${seven.length ? `
+        <div class="material-elements">
+          <div class="material-elements-title">要素提取</div>
+          ${seven.map(([k,v]) => `<div class="material-element-row"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v || '—')}</div></div>`).join('')}
+        </div>
+      ` : ''}
+      <button class="material-open-btn" onclick="openOriginalFile('${escapeAttr(m.file)}');event.stopPropagation();">打开源文件</button>
+    </div>
+  `;
+  $('#materialDrawer').classList.add('show');
+}
+function closeMaterialDrawer() { $('#materialDrawer').classList.remove('show'); }
+function openOriginalFile(file) { window.open(encodeURI(file), '_blank'); }
+
+function openConflictCompareDrawer() {
+  const a = materialForName('询问笔录-李江')?.sevenElements || {};
+  const b = materialForName('自书材料·周枫')?.sevenElements || {};
+  const rows = [
+    ['时间', a.time, b.time],
+    ['地点', a.place, b.place],
+    ['主体', a.subject, b.subject],
+    ['对象', a.object, b.object],
+    ['工具/经过', a.action, b.action],
+    ['后果', a.consequence, b.consequence]
+  ];
+  $('#histDrawer').classList.remove('show');
+  $('#materialBody').innerHTML = `
+    <div class="material-panel">
+      <div class="material-type">矛盾详情</div>
+      <div class="material-title">矛盾详情</div>
+      <div class="material-path">动作描述冲突 · 要素提取比对</div>
+      <div class="compare-table">
+        <div class="compare-row head"><div>要素</div><div><span class="mat-link" onclick="openOriginalFile('assets/受害人询问笔录.pdf');event.stopPropagation();">询问笔录-李江</span></div><div><span class="mat-link" onclick="openOriginalFile('assets/嫌疑人自书材料.pdf');event.stopPropagation();">自书材料·周枫</span></div></div>
+        ${rows.map(([k, av, bv]) => {
+          const diff = av !== bv;
+          return `<div class="compare-row ${diff ? 'diff' : ''}"><div class="k">${escapeHtml(k)}</div><div class="${diff && k === '工具/经过' ? 'good' : ''}">${escapeHtml(av || '—')}</div><div class="${diff && k === '工具/经过' ? 'bad' : ''}">${escapeHtml(bv || '—')}</div></div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  $('#materialDrawer').classList.add('show');
+}
+
+/* ===== 各要素的"绽放态详情" ===== */
+/* ===== 各要素的"绽放态详情" =====
+   按阶段差异化：DETAIL_BY_STEP[step][nodeId] 命中则用，否则回落到 NODE_DETAIL_DEFAULT */
+
+/* 步骤 1 · 警情接入 */
+const STEP1_DETAIL = {
+  conseq: {
+    evidences: [
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江左脸明显红肿', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：诊断证明', action:'待民警上传医学诊断证明（伤情阶段）' }
+    ],
+    conflicts: []
+  },
+  tool: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['y','g','g'] },
+      { name:'警情概述', tag:'警情', desc:'初步认定为肢体冲突', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：李江询问笔录', action:'笔录 Agent 安排对李江询问（笔录阶段）' }
+    ],
+    conflicts: []
+  },
+  victim: {
+    evidences: [
+      { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：身份核验回写', action:'调用身份系统核验李江身份（程序核验阶段）' },
+      { title:'缺：李江询问笔录', action:'笔录 Agent 安排询问（笔录阶段）' }
+    ],
+    conflicts: []
+  },
+  suspect: {
+    evidences: [
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：身份核验回写', action:'调用身份/前科系统核验周枫（程序核验阶段）' },
+      { title:'缺：嫌疑人陈述', action:'获取周枫询问笔录与自书（笔录/办案中心阶段）' }
+    ],
+    conflicts: []
+  },
+  witness: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  time: {
+    evidences: [
+      { name:'警情时间戳', tag:'警情', desc:'2026-04-06 09:55', bar:['g','g','g'] },
+      { name:'地点GPS', tag:'地点', desc:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+};
+
+/* 默认（沿用步骤 3 笔录矛盾阶段的详情） */
+const NODE_DETAIL_DEFAULT = {
+  tool: {
+    evidences: [
+      { name:'警情概述', tag:'警情', desc:'初步认定为肢体冲突', bar:['y','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫扇打我左脸一次"', bar:['y','g','g'] },
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：嫌疑人侧陈述', action:'获取周枫自书材料（T-005·办案中心）' }
+    ],
+    conflicts: [
+      {
+        title:'⚡ 动作描述冲突',
+        sideA:{src:'笔录·李江', val:'扇打左脸'},
+        sideB:{src:'警情概述',  val:'推搡'},
+        investigation:'证人吴渔证言印证"扇了一巴掌"',
+        suggest:'建议采信 李江，理由：证人证言印证',
+        tasks:['对周枫再次询问，重点核实动作描述']
+      }
+    ]
+  },
+  conseq: {
+    evidences: [
+      { name:'警情概述', tag:'警情', desc:'李江左脸有红肿', bar:['y','y','g'] },
+      { name:'伤情照片(E-003)', tag:'照片', desc:'左脸明显红肿', bar:['g','g','g'] },
+      { name:'诊断证明(E-007)', tag:'诊断', desc:'左脸软组织挫伤·医学结论', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  victim: {
+    evidences: [
+      { name:'身份核验回写', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+      { name:'询问笔录(E-006)', tag:'笔录', desc:'当事人陈述', bar:['y','g','g'] },
+      { name:'伤情照片(E-003)', tag:'照片', desc:'伤情主体', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  suspect: {
+    evidences: [
+      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+      { name:'警情概述', tag:'警情', desc:'李江指认为施害人', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：嫌疑人陈述', action:'获取周枫询问笔录与自书' }
+    ],
+    conflicts: []
+  },
+  witness: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"扇了一巴掌"', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：吴渔询问笔录', action:'安排吴渔询问' }
+    ],
+    conflicts: []
+  },
+  time: {
+    evidences: [
+      { name:'警情时间戳', tag:'警情', desc:'2026-04-06 09:55', bar:['g','g','g'] },
+      { name:'地点GPS', tag:'地点', desc:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+};
+
+/* 步骤 2 · 程序核验：在 ① 基础上，受害人/嫌疑人补齐身份核验回写 */
+const STEP2_DETAIL = Object.assign({}, STEP1_DETAIL, {
+  victim: {
+    evidences: [
+      { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
+      { name:'身份核验回写', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：李江询问笔录', action:'笔录 Agent 安排询问（受害人笔录阶段）' }
+    ],
+    conflicts: []
+  },
+  suspect: {
+    evidences: [
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
+      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：嫌疑人陈述', action:'获取周枫询问笔录与自书（嫌疑人笔录/办案中心阶段）' }
+    ],
+    conflicts: []
+  },
+});
+
+/* 步骤 3 · 笔录 */
+const STEP3_DETAIL = {
+  conseq: {
+    evidences: [
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江左脸明显红肿', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫扇打我左脸"', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：诊断证明', action:'待民警上传医学诊断证明（诊断证明阶段）' }
+    ],
+    conflicts: []
+  },
+  tool: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫徒手扇打我左脸一次"', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：嫌疑人侧陈述', action:'获取周枫自书材料（办案中心阶段）' }
+    ],
+    conflicts: []
+  },
+  victim: {
+    evidences: [
+      { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
+      { name:'身份核验回写', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'被害人陈述', bar:['y','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  suspect: {
+    evidences: [
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
+      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：嫌疑人陈述', action:'获取周枫自书材料（办案中心阶段）' }
+    ],
+    conflicts: []
+  },
+  witness: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  time: {
+    evidences: [
+      { name:'警情时间戳', tag:'警情', desc:'2026-04-06 09:55', bar:['g','g','g'] },
+      { name:'地点GPS', tag:'地点', desc:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+};
+
+/* 步骤 4 · 诊断证明：在步骤 3 基础上，后果新增诊断证明，基本信息升级 */
+const STEP4_DETAIL = Object.assign({}, STEP3_DETAIL, {
+  conseq: {
+    evidences: [
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江左脸明显红肿', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫扇打我左脸"', bar:['g','g','g'] },
+      { name:'诊断证明(E-007)', tag:'诊断', desc:'左脸软组织挫伤·医学结论', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+});
+
+/* 步骤 5 · 自书：嫌疑人自书"推搡"与李江笔录"扇打"冲突，证人佐证李江 */
+const STEP5_DETAIL = {
+  conseq: STEP4_DETAIL.conseq,
+  victim: STEP4_DETAIL.victim,
+  witness: STEP4_DETAIL.witness,
+  time: STEP4_DETAIL.time,
+  tool: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫徒手扇打我左脸一次"', bar:['y','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'"我只是推搡了李江，没有扇巴掌"', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：周枫询问笔录', action:'对周枫制作询问笔录，重点核实动作描述（已派生任务 T-008）' }
+    ],
+    conflicts: [
+      {
+        title:'⚡ 动作描述冲突',
+        sideA:{src:'询问笔录-李江', val:'徒手扇打左脸'},
+        sideB:{src:'自书材料·周枫', val:'仅推搡，未扇打'},
+        investigation:'证人吴渔证言"看到周枫扇了李江一巴掌"印证 李江 陈述',
+        suggest:'建议采信 李江：徒手扇打而非推搡',
+        tasks:['对周枫制作询问笔录，重点核实动作描述']
+      }
+    ]
+  },
+  suspect: {
+    evidences: [
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
+      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'对动作描述与受害人不一致', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：周枫询问笔录', action:'对周枫制作询问笔录（任务 T-008）' }
+    ],
+    conflicts: []
+  },
+};
+
+/* 步骤 6 · 嫌疑人笔录：周枫笔录承认扇打，矛盾闭环 */
+const STEP6_DETAIL = {
+  conseq: STEP4_DETAIL.conseq,
+  victim: STEP4_DETAIL.victim,
+  witness: STEP4_DETAIL.witness,
+  time: STEP4_DETAIL.time,
+  tool: {
+    evidences: [
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫徒手扇打我左脸一次"', bar:['g','g','g'] },
+      { name:'周枫询问笔录(E-011)', tag:'笔录', desc:'"我扇了李江左脸一巴掌"（以笔录为准）', bar:['g','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'原称"推搡"，已被本人笔录否定', bar:['y','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  suspect: {
+    evidences: [
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
+      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+      { name:'周枫询问笔录(E-011)', tag:'笔录', desc:'供认对李江实施扇打', bar:['g','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'认错认罚书已签字（E-010）', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+};
+
+/* 阶段化详情查询 */
+const DETAIL_BY_STEP = { 1: STEP1_DETAIL, 2: STEP2_DETAIL, 3: STEP3_DETAIL, 4: STEP4_DETAIL, 5: STEP5_DETAIL, 6: STEP6_DETAIL, 7: STEP6_DETAIL };
+function getNodeDetail(id, step) {
+  const stepMap = DETAIL_BY_STEP[step];
+  if (stepMap && stepMap[id]) return stepMap[id];
+  return NODE_DETAIL_DEFAULT[id] || { evidences:[], gaps:[], conflicts:[] };
+}
+
+/* ===== 边数据 ===== */
+const EDGES = [
+  { from:'tool',   to:'conseq',  type:'cause',  label:'印证' },
+  { from:'conseq', to:'victim',  type:'cause',  label:'属于' },
+  { from:'suspect',to:'tool',    type:'cause',  label:'使用' },
+];
+
+/* ===== 状态 ===== */
+let currentStep = 1;
+let expandedId = null;
+let allMsgs = [];
+let viewScale = 1;
+let viewX = 0, viewY = 0;
+let suppressCanvasClick = false;
+let edgeAnimationFrame = null;
+
+/* ===== DOM 工具 ===== */
+const $ = sel => document.querySelector(sel);
+const create = (tag, cls) => { const el = document.createElement(tag); if (cls) el.className = cls; return el; };
+
+/* ===== 渲染节点（viewport 坐标系，不再缩放） ===== */
+function renderNodes() {
+  const layer = $('#nodesLayer');
+  layer.innerHTML = '';
+  const data = STEPS[currentStep].nodes;
+
+  Object.values(NODES).forEach(n => {
+    const d = data[n.id];
+    if (!d) return;
+    // 规则：有 ❓ 缺口 或 ⚡ 矛盾时，节点不能是"已证实"，自动降级为"补强中"
+    if (d.state === 'green' && (d.badges[1] > 0 || d.badges[2] > 0)) {
+      d.state = 'yellow';
+      d.status = '补强中';
+    }
+    const el = create('div', 'node ' + d.state);
+    el.id = 'node-' + n.id;
+    el.dataset.nid = n.id;
+    el.style.left = n.x + 'px';
+    el.style.top  = n.y + 'px';
+    el.style.width = n.w + 'px';
+
+    el.innerHTML = `
+      <div class="node-close-x" onclick="event.stopPropagation();collapseNodeInline()">×</div>
+      <div class="node-head">
+        <div class="node-title">${n.title}</div>
+        <div class="node-status ${d.state}">${d.status}</div>
+      </div>
+      <div class="node-body">
+        <div class="node-info">
+          <div class="node-key">${d.key}</div>
+          <div class="node-sub">${d.sub}</div>
+          <div class="three-badges">
+            ${badge('👍', d.badges[0])}${badge('❓', d.badges[1])}${badge('⚡', d.badges[2])}
+          </div>
+        </div>
+        ${renderMedia(n)}
+      </div>
+      <div class="node-detail" id="detail-${n.id}"></div>
+    `;
+    layer.appendChild(el);
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (el.classList.contains('expanded')) return;
+      const target = e.target.closest('.badge-emoji');
+      const kind = target ? target.dataset.kind : null;
+      expandNodeInline(n.id, kind);
+    });
+    el.addEventListener('mouseenter', e => {
+      if (!el.classList.contains('expanded')) showTooltip(e, n, d);
+    });
+    el.addEventListener('mouseleave', hideTooltip);
+  });
+}
+function badge(emoji, n) {
+  const kind = emoji === '👍' ? 'evi' : emoji === '❓' ? 'gap' : 'cf';
+  return `<div class="badge-emoji ${n>0?'':'gray'}" data-kind="${kind}"><span>${emoji}</span><span class="num">${n}</span></div>`;
+}
+
+/* 节点右侧媒体区：视频 / 照片 / 缺省占位 */
+function renderMedia(n) {
+  if (n.video) {
+    return `
+      <div class="node-video" data-video-host>
+        <video src="${n.video}" preload="metadata" muted playsinline></video>
+        <div class="vd-overlay"><div class="play-icon">▶</div></div>
+        <span class="vd-tag">🎙</span>
+        <span class="vd-time">0:03</span>
+        <button class="media-link-btn" onclick="openMaterialDrawerByName('证人吴渔证言');event.stopPropagation();">材料</button>
+      </div>
+    `;
+  }
+  if (n.photo) {
+    const materialName = n.id === 'conseq' ? '伤情照片' : n.id === 'victim' ? '李江人像照片' : n.id === 'suspect' ? '嫌疑人人像照片' : n.id === 'time' ? '现场照片' : '';
+    return `<div class="node-photo" style="background-image:url('${n.photo}')"><button class="media-link-btn" onclick="openMaterialDrawerByName('${materialName}');event.stopPropagation();">材料</button></div>`;
+  }
+  return `<div class="node-photo placeholder"><span class="icon">🛠</span><span>暂无图片</span></div>`;
+}
+
+/* 播放证人证言视频 */
+function playWitnessVideo(host) {
+  const video = host.querySelector('video');
+  const time = host.querySelector('.vd-time');
+  if (!video.paused) {
+    video.pause(); video.currentTime = 0;
+    host.classList.remove('playing');
+    time.textContent = '0:03';
+    return;
+  }
+  video.currentTime = 0;
+  video.muted = false;
+  video.play().then(() => {
+    host.classList.add('playing');
+    const tick = () => {
+      if (video.paused || video.ended) return;
+      const remain = Math.max(0, (video.duration || 3) - video.currentTime);
+      time.textContent = '0:' + Math.ceil(remain).toString().padStart(2,'0');
+      requestAnimationFrame(tick);
+    };
+    tick();
+  }).catch(() => {
+    video.muted = true;
+    video.play();
+    host.classList.add('playing');
+  });
+  video.onended = () => {
+    host.classList.remove('playing');
+    time.textContent = '0:03';
+  };
+}
+
+/* ===== 渲染连线（viewport 坐标系） ===== */
+function renderEdges() {
+  const data = STEPS[currentStep].nodes;
+  const edgesG = $('#edges'); edgesG.innerHTML = '';
+  const labelsG = $('#edgeLabels'); labelsG.innerHTML = '';
+
+  EDGES.forEach((e, idx) => {
+    const a = NODES[e.from], b = NODES[e.to];
+    const da = data[e.from], db = data[e.to];
+
+    // 计算节点边缘的连接锚点（让线从边出而非中心）
+    const ac = { x: a.x + a.w/2, y: a.y + a.h/2 };
+    const bc = { x: b.x + b.w/2, y: b.y + b.h/2 };
+    const dx = bc.x - ac.x, dy = bc.y - ac.y;
+    const horizontal = Math.abs(dx) > Math.abs(dy);
+    let ax, ay, bx, by;
+    if (horizontal) {
+      ax = dx > 0 ? a.x + a.w : a.x;
+      ay = ac.y;
+      bx = dx > 0 ? b.x : b.x + b.w;
+      by = bc.y;
+    } else {
+      ax = ac.x;
+      ay = dy > 0 ? a.y + a.h : a.y;
+      bx = bc.x;
+      by = dy > 0 ? b.y : b.y + b.h;
+    }
+
+    let stroke = '#94a3b8', width = 1.5, marker = '';
+    if (e.type === 'cause') {
+      width = 3;
+      const ws = stateWeight(da.state), wse = stateWeight(db.state);
+      const worst = Math.max(ws, wse);
+      stroke = worst === 2 ? '#ef4444' : worst === 1 ? '#eab308' : '#22c55e';
+      marker = `url(#arrow${stroke==='#22c55e'?'G':stroke==='#eab308'?'Y':'R'})`;
+    }
+
+    // 三次贝塞尔（横向走势用横向控制点，纵向用纵向）
+    let c1x, c1y, c2x, c2y;
+    if (horizontal) {
+      c1x = ax + (bx-ax)*0.5; c1y = ay;
+      c2x = ax + (bx-ax)*0.5; c2y = by;
+    } else {
+      c1x = ax; c1y = ay + (by-ay)*0.5;
+      c2x = bx; c2y = ay + (by-ay)*0.5;
+    }
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${ax},${ay} C${c1x},${c1y} ${c2x},${c2y} ${bx},${by}`);
+    path.setAttribute('stroke', stroke);
+    path.setAttribute('stroke-width', width);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    if (marker) path.setAttribute('marker-end', marker);
+    edgesG.appendChild(path);
+
+    // 标签
+    const mx = (ax+bx)/2, my = (ay+by)/2;
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x', mx);
+    text.setAttribute('y', my+4);
+    text.setAttribute('text-anchor','middle');
+    text.setAttribute('font-size','12');
+    text.setAttribute('font-weight', e.type==='cause' ? '600' : '500');
+    text.setAttribute('fill', e.type==='cause' ? '#374151' : '#94a3b8');
+    text.textContent = e.label;
+    const w = e.label.length * 14 + 8;
+    rect.setAttribute('x', mx - w/2);
+    rect.setAttribute('y', my - 9);
+    rect.setAttribute('width', w);
+    rect.setAttribute('height', 18);
+    rect.setAttribute('rx', 9);
+    rect.setAttribute('fill', '#fff');
+    rect.setAttribute('stroke', '#e5e7eb');
+    lbl.appendChild(rect); lbl.appendChild(text);
+    labelsG.appendChild(lbl);
+  });
+}
+function stateWeight(s){ return s==='red'?2:s==='yellow'?1:0; }
+
+/* ===== 节点原地展开 + 周边自动避让 ===== */
+const EXPANDED_W = 460, EXPANDED_H = 480;
+const SAFE_PAD = 28;
+
+function expandNodeInline(id, kind) {
+  if (expandedId === id) return;
+  if (expandedId) {
+    collapseNodeInline();
+    setTimeout(() => doExpand(id, kind), 50);
+    return;
+  }
+  doExpand(id, kind);
+}
+
+function doExpand(id, kind) {
+  expandedId = id;
+  const el = document.getElementById('node-' + id);
+  if (!el) return;
+  const n = NODES[id];
+
+  // 展开卡片固定出现在当前画布视野中心，坐标需反算回 viewport 坐标系。
+  const wrap = $('#canvasWrap');
+  const cx = (wrap.clientWidth / 2 - viewX) / viewScale;
+  const cy = (wrap.clientHeight / 2 - viewY) / viewScale;
+  let tx = cx - EXPANDED_W/2;
+  let ty = cy - EXPANDED_H/2;
+  const VW = 1600, VH = 800, M = 20;
+  tx = Math.max(M, Math.min(VW - EXPANDED_W - M, tx));
+  ty = Math.max(M, Math.min(VH - EXPANDED_H - M, ty));
+
+  const shiftX = (tx + EXPANDED_W / 2) - (n.x + n.w / 2);
+  const shiftY = (ty + EXPANDED_H / 2) - (n.y + n.h / 2);
+  animateEdgesDuringNodeMotion(420);
+
+  Object.values(NODES).filter(m => m.id !== id).forEach(m => {
+    const oel = document.getElementById('node-' + m.id);
+    if (!oel) return;
+    if (!oel.dataset.origLeft) {
+      oel.dataset.origLeft = m.x;
+      oel.dataset.origTop = m.y;
+    }
+    const x = m.x + shiftX;
+    const y = m.y + shiftY;
+    oel.style.left = x + 'px';
+    oel.style.top = y + 'px';
+    m._curX = x; m._curY = y;
+  });
+
+  // 展开当前节点
+  el.style.left = tx + 'px';
+  el.style.top = ty + 'px';
+  el.style.width = EXPANDED_W + 'px';
+  el.classList.add('expanded');
+
+  // 渲染详情
+  document.getElementById('detail-' + id).innerHTML = renderDetail(id, kind);
+
+  setTimeout(updateEdgesForExpanded, 420);
+
+  // 自动滚动到对应段
+  if (kind) {
+    setTimeout(() => {
+      const target = document.querySelector('#detail-' + id + ' [data-section="' + kind + '"]');
+      if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 420);
+  }
+}
+
+/* 把矩形 r 沿"远离 hole 中心"方向推到与 hole(+pad) 不重叠的最近位置 */
+function pushOutOf(r, hole, pad) {
+  const ex = expand(hole, pad);
+  if (!rectOverlap(r, ex)) return r;
+  const rc = { x: r.x + r.w/2, y: r.y + r.h/2 };
+  const hc = { x: ex.x + ex.w/2, y: ex.y + ex.h/2 };
+  const dx = rc.x - hc.x;
+  const dy = rc.y - hc.y;
+  // 计算需要在四个方向各自移动的距离
+  const moveLeft  = (r.x + r.w) - ex.x;             // 向左移动这么多即可避开
+  const moveRight = (ex.x + ex.w) - r.x;            // 向右
+  const moveUp    = (r.y + r.h) - ex.y;             // 向上
+  const moveDown  = (ex.y + ex.h) - r.y;            // 向下
+  // 选与中心方向一致且代价最小的方向
+  const candidates = [];
+  if (dx <= 0) candidates.push({ dir:'L', cost: moveLeft });
+  if (dx >= 0) candidates.push({ dir:'R', cost: moveRight });
+  if (dy <= 0) candidates.push({ dir:'U', cost: moveUp });
+  if (dy >= 0) candidates.push({ dir:'D', cost: moveDown });
+  candidates.sort((a,b) => a.cost - b.cost);
+  const pick = candidates[0];
+  const out = { x: r.x, y: r.y, w: r.w, h: r.h };
+  if (pick.dir === 'L') out.x -= pick.cost;
+  if (pick.dir === 'R') out.x += pick.cost;
+  if (pick.dir === 'U') out.y -= pick.cost;
+  if (pick.dir === 'D') out.y += pick.cost;
+  return out;
+}
+
+function clampToView(r, VW, VH, M) {
+  return {
+    x: Math.max(M, Math.min(VW - r.w - M, r.x)),
+    y: Math.max(M, Math.min(VH - r.h - M, r.y)),
+    w: r.w, h: r.h
+  };
+}
+
+function animateEdgesDuringNodeMotion(duration = 420) {
+  if (edgeAnimationFrame) cancelAnimationFrame(edgeAnimationFrame);
+  const start = performance.now();
+  const tick = now => {
+    updateEdgesForExpanded();
+    if (now - start < duration) {
+      edgeAnimationFrame = requestAnimationFrame(tick);
+    } else {
+      edgeAnimationFrame = null;
+      updateEdgesForExpanded();
+    }
+  };
+  edgeAnimationFrame = requestAnimationFrame(tick);
+}
+
+function collapseNodeInline() {
+  if (!expandedId) return;
+  const id = expandedId;
+  const el = document.getElementById('node-' + id);
+  const n = NODES[id];
+  if (el) {
+    el.classList.remove('expanded');
+    el.style.left = n.x + 'px';
+    el.style.top = n.y + 'px';
+    el.style.width = n.w + 'px';
+    document.getElementById('detail-' + id).innerHTML = '';
+  }
+  Object.values(NODES).forEach(m => {
+    if (m.id === id) return;
+    const oel = document.getElementById('node-' + m.id);
+    if (!oel) return;
+    oel.style.left = m.x + 'px';
+    oel.style.top = m.y + 'px';
+    delete m._curX; delete m._curY;
+    delete oel.dataset.origLeft;
+    delete oel.dataset.origTop;
+  });
+  expandedId = null;
+  animateEdgesDuringNodeMotion(420);
+  setTimeout(updateEdgesForExpanded, 420);
+}
+
+/* 重画连线（使用展开/避让后的当前坐标） */
+function updateEdgesForExpanded() {
+  const data = STEPS[currentStep].nodes;
+  const edgesG = $('#edges'); edgesG.innerHTML = '';
+  const labelsG = $('#edgeLabels'); labelsG.innerHTML = '';
+
+  EDGES.forEach(e => {
+    const a = NODES[e.from], b = NODES[e.to];
+    const da = data[e.from], db = data[e.to];
+
+    // 取当前实际坐标（展开节点 / 避让节点 / 原位置）
+    const aRect = currentRect(a);
+    const bRect = currentRect(b);
+    const ac = { x: aRect.x + aRect.w/2, y: aRect.y + aRect.h/2 };
+    const bc = { x: bRect.x + bRect.w/2, y: bRect.y + bRect.h/2 };
+    const dx = bc.x - ac.x, dy = bc.y - ac.y;
+    const horizontal = Math.abs(dx) > Math.abs(dy);
+    let ax, ay, bx, by;
+    if (horizontal) {
+      ax = dx > 0 ? aRect.x + aRect.w : aRect.x;
+      ay = ac.y;
+      bx = dx > 0 ? bRect.x : bRect.x + bRect.w;
+      by = bc.y;
+    } else {
+      ax = ac.x;
+      ay = dy > 0 ? aRect.y + aRect.h : aRect.y;
+      bx = bc.x;
+      by = dy > 0 ? bRect.y : bRect.y + bRect.h;
+    }
+    let stroke = '#94a3b8', width = 1.5, marker = '';
+    if (e.type === 'cause') {
+      width = 3;
+      const ws = stateWeight(da.state), wse = stateWeight(db.state);
+      const worst = Math.max(ws, wse);
+      stroke = worst === 2 ? '#ef4444' : worst === 1 ? '#eab308' : '#22c55e';
+      marker = `url(#arrow${stroke==='#22c55e'?'G':stroke==='#eab308'?'Y':'R'})`;
+    }
+    let c1x, c1y, c2x, c2y;
+    if (horizontal) {
+      c1x = ax + (bx-ax)*0.5; c1y = ay;
+      c2x = ax + (bx-ax)*0.5; c2y = by;
+    } else {
+      c1x = ax; c1y = ay + (by-ay)*0.5;
+      c2x = bx; c2y = ay + (by-ay)*0.5;
+    }
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${ax},${ay} C${c1x},${c1y} ${c2x},${c2y} ${bx},${by}`);
+    path.setAttribute('stroke', stroke);
+    path.setAttribute('stroke-width', width);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    if (marker) path.setAttribute('marker-end', marker);
+    edgesG.appendChild(path);
+
+    const mx = (ax+bx)/2, my = (ay+by)/2;
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x', mx);
+    text.setAttribute('y', my+4);
+    text.setAttribute('text-anchor','middle');
+    text.setAttribute('font-size','12');
+    text.setAttribute('font-weight', e.type==='cause' ? '600' : '500');
+    text.setAttribute('fill', e.type==='cause' ? '#374151' : '#94a3b8');
+    text.textContent = e.label;
+    const w = e.label.length * 14 + 8;
+    rect.setAttribute('x', mx - w/2);
+    rect.setAttribute('y', my - 9);
+    rect.setAttribute('width', w);
+    rect.setAttribute('height', 18);
+    rect.setAttribute('rx', 9);
+    rect.setAttribute('fill', '#fff');
+    rect.setAttribute('stroke', '#e5e7eb');
+    lbl.appendChild(rect); lbl.appendChild(text);
+    labelsG.appendChild(lbl);
+  });
+}
+
+/* 当前节点矩形：优先读取 DOM 当前动画帧位置，避免连线与节点运动不同步。 */
+function currentRect(n) {
+  const el = document.getElementById('node-' + n.id);
+  const vp = $('#viewport');
+  if (el && vp) {
+    const er = el.getBoundingClientRect();
+    const vr = vp.getBoundingClientRect();
+    return {
+      x: (er.left - vr.left) / viewScale,
+      y: (er.top - vr.top) / viewScale,
+      w: er.width / viewScale,
+      h: er.height / viewScale
+    };
+  }
+  return { x: n.x, y: n.y, w: n.w, h: n.h };
+}
+
+/* 矩形工具 */
+function rectOverlap(a, b) {
+  return !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
+}
+function expand(r, p) {
+  return { x: r.x - p, y: r.y - p, w: r.w + 2*p, h: r.h + 2*p };
+}
+function renderDetail(id, kind) {
+  const data = getNodeDetail(id, currentStep);
+  const showEvi = !kind || kind === 'evi';
+  const showGap = !kind || kind === 'gap';
+  const showCf  = !kind || kind === 'cf';
+  let html = '';
+  // 已证
+  html += `
+    <div class="detail-section" data-section="evi">
+      <div class="detail-section-head">👍 已有证据 (${data.evidences.length}) <span class="toggle">${showEvi?'折叠 ▾':'展开 ▸'}</span></div>
+      ${showEvi ? data.evidences.map(ev => `
+        <div class="evidence-card">
+          <div class="ev-head"><span class="ev-name">${materialTitle(ev.name)}</span><span class="ev-tag">${ev.tag}</span></div>
+          <div class="ev-desc">→ ${ev.desc}</div>
+          <div class="mini-bar">
+            <span class="seg" style="background:${ev.bar[0]==='g'?'#16a34a':ev.bar[0]==='y'?'#d97706':'#b91c1c'}">真</span>
+            <span class="seg" style="background:${ev.bar[2]==='g'?'#16a34a':ev.bar[2]==='y'?'#d97706':'#b91c1c'}">合</span>
+            <span class="seg" style="background:${ev.bar[1]==='g'?'#16a34a':ev.bar[1]==='y'?'#d97706':'#b91c1c'}">关</span>
+          </div>
+        </div>
+      `).join('') : ''}
+      ${showEvi && data.evidences.length===0 ? '<div style="color:#9ca3af;font-size:11px;padding:6px;">暂无证据</div>' : ''}
+    </div>
+  `;
+  // 缺口
+  html += `
+    <div class="detail-section" data-section="gap">
+      <div class="detail-section-head">❓ 缺失证据 (${data.gaps.length}) <span class="toggle">${showGap?'折叠 ▾':'展开 ▸'}</span></div>
+      ${showGap ? data.gaps.map(g => `
+        <div class="gap-card">
+          <div class="gap-title">${g.title}</div>
+          <div class="gap-action">${g.action}</div>
+          <span class="gap-task-tag">已派发</span>
+        </div>
+      `).join('') : ''}
+      ${showGap && data.gaps.length===0 ? '<div style="color:#9ca3af;font-size:11px;padding:6px;">暂无缺口</div>' : ''}
+    </div>
+  `;
+  // 矛盾
+  html += `
+    <div class="detail-section" data-section="cf">
+      <div class="detail-section-head">⚡ 矛盾 (${data.conflicts.length}) <span class="toggle">${showCf?'折叠 ▾':'展开 ▸'}</span></div>
+      ${showCf ? data.conflicts.map((c, ci) => `
+        <div class="conflict-card" id="cf-${id}-${ci}">
+          <div class="cf-head">
+            <div class="cf-title">${c.title}</div>
+            <button class="cf-detail-btn" onclick="openConflictCompareDrawer();event.stopPropagation();">详情</button>
+          </div>
+          <div class="cf-vs">
+            <div><div class="src">${materialTitle(c.sideA.src)}</div><div class="val">${c.sideA.val}</div></div>
+            <div><div class="src">${materialTitle(c.sideB.src)}</div><div class="val">${c.sideB.val}</div></div>
+          </div>
+          <div class="cf-investigation"><span class="lbl">💡 智能分析：</span><br>✓ ${c.investigation}<br>→ ${c.suggest}</div>
+          <div class="cf-tasks"><span class="lbl">📋 已派生任务：</span>
+            <ul>${c.tasks.map(t=>`<li>${t}</li>`).join('')}</ul>
+          </div>
+          <div class="cf-actions">
+            <button class="confirm-btn" onclick="confirmCf('cf-${id}-${ci}');event.stopPropagation();">✓ 采纳</button>
+            <button class="reject-btn" onclick="showToast('已驳回 · 请填写理由','error');event.stopPropagation();">驳回·说明理由</button>
+          </div>
+        </div>
+      `).join('') : ''}
+      ${showCf && data.conflicts.length===0 ? '<div style="color:#9ca3af;font-size:11px;padding:6px;">暂无矛盾</div>' : ''}
+    </div>
+  `;
+  return html;
+}
+function confirmCf(cfId) {
+  const el = document.getElementById(cfId);
+  if (el) {
+    el.classList.add('resolved');
+    el.querySelector('.cf-title').innerHTML = '✓ 已采纳系统建议 · ' + new Date().toLocaleTimeString();
+    el.querySelector('.cf-actions').style.display = 'none';
+    showToast('✓ 已采纳系统建议·决策日志已记录', 'success');
+  }
+}
+
+/* ===== 渲染消息 ===== */
+function renderMsgs() {
+  const cont = $('#msgs'); cont.innerHTML = '';
+  allMsgs.forEach(m => appendMsg(m));
+  cont.scrollTop = cont.scrollHeight;
+}
+function appendMsg(m) {
+  const cont = $('#msgs');
+  const wrap = create('div', 'msg ' + (m.type==='user'?'user':'bot'));
+  const av = create('div', 'av');
+  av.textContent = m.type==='user' ? '我' : '威';
+  let bubble;
+  if (m.type === 'alert') {
+    bubble = create('div', 'bubble alert');
+    bubble.innerHTML = `
+      <div class="alert-title">⚠ <b>检测到关键字段冲突</b></div>
+      <div style="font-size:12px;color:#374151;">工具/经过 · 动作描述</div>
+      <div class="conflict-row">
+        <div class="conflict-col"><div class="src">笔录·李江</div><div class="val">扇打</div></div>
+        <div class="conflict-col"><div class="src">警情概述</div><div class="val">推搡</div></div>
+      </div>
+      <div class="investigation">💡 <b>智能分析：</b><br>证人吴渔证言印证"扇了一巴掌"<br>→ 建议采信李江</div>
+      <div class="tasks">已派生任务：对周枫再次询问</div>
+      <span class="view-conflict" onclick="jumpToConflict('${m.focus||'tool'}')">👁 查看冲突 →</span>
+      <span class="ts">10:32</span>
+    `;
+  } else {
+    bubble = create('div', 'bubble');
+    bubble.innerHTML = m.html + '<span class="ts">' + (m.time||now()) + '</span>';
+  }
+  wrap.appendChild(av);
+  wrap.appendChild(bubble);
+  cont.appendChild(wrap);
+  cont.scrollTop = cont.scrollHeight;
+}
+function now() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+/* ===== 跳转矛盾 ===== */
+function jumpToConflict(nodeId) {
+  switchTab('graph');
+  setTimeout(() => {
+    expandNodeInline(nodeId, 'cf');
+    setTimeout(() => {
+      const el = document.querySelector('#node-' + nodeId + ' .conflict-card');
+      if (el) {
+        el.style.boxShadow = '0 0 0 3px #3b82f6';
+        setTimeout(() => el.style.boxShadow = '', 800);
+      }
+    }, 500);
+  }, 100);
+}
+
+/* ===== 切换步骤 ===== */
+function switchStep(n) {
+  currentStep = n;
+  const s = STEPS[n];
+  // 顶部进度环 / 主关系 / 缺证
+  $('#progNum').textContent = s.progress;
+  const arc = $('#progArc');
+  const total = parseFloat(s.progress.split('/')[1]);
+  const done = parseFloat(s.progress.split('/')[0]);
+  const C = 2 * Math.PI * 18; // 113.1
+  arc.setAttribute('stroke-dasharray', C);
+  arc.setAttribute('stroke-dashoffset', C * (1 - done/total));
+  arc.setAttribute('stroke', s.mainRel.cls === 'green' ? '#22c55e' : s.mainRel.cls === 'yellow' ? '#eab308' : '#ef4444');
+  $('#mainRel').className = 'main-rel ' + s.mainRel.cls;
+  $('#mainRel').textContent = s.mainRel.txt;
+  const mp = $('#missPill');
+  if (s.miss) { mp.className = 'miss-pill'; mp.textContent = s.miss; }
+  else { mp.className = 'miss-pill ok'; mp.textContent = '✓ 证据齐备'; }
+
+  // 违法事实
+  $('#factVer').textContent = s.factVer;
+  $('#factBody').innerHTML = s.fact;
+
+  // 步进器
+  document.querySelectorAll('.step-pill').forEach(p => {
+    const sn = parseInt(p.dataset.step);
+    p.classList.remove('active','done');
+    if (sn < n) p.classList.add('done');
+    if (sn === n) p.classList.add('active');
+  });
+
+  // 累积消息（从 1 到 n）
+  allMsgs = [];
+  for (let i = 1; i <= n; i++) {
+    if (STEPS[i] && STEPS[i].msgs) {
+      allMsgs = allMsgs.concat(STEPS[i].msgs);
+    }
+  }
+
+  // 阶段 chip
+  if (n <= 2) $('#chipStage').textContent = 'S2 行政立案';
+  else if (n === 6) {
+    document.querySelectorAll('.stage-chips .chip').forEach((c,i) => { c.className = 'chip done'; });
+  } else $('#chipStage').textContent = 'S3 案件办理';
+
+  // 切步骤前收起任何已展开的节点
+  expandedId = null;
+  Object.values(NODES).forEach(m => { delete m._curX; delete m._curY; });
+  renderNodes();
+  updateEdgesForExpanded();
+  renderMsgs();
+
+  // Toast
+  const stepName = ['','警情接入','程序核验','笔录·矛盾','诊断证明','自书+认罚','处罚签发'][n];
+  showToast('已切换到步骤 ' + n + '：' + stepName, 'success');
+
+  // 步骤 3 自动滚动到矛盾消息
+  if (n === 3) {
+    setTimeout(() => {
+      const cont = $('#msgs');
+      cont.scrollTop = cont.scrollHeight;
+    }, 100);
+  }
+}
+
+/* ===== 视口缩放与拖动 ===== */
+function applyView() {
+  const vp = $('#viewport');
+  vp.style.transform = `translate(${viewX}px, ${viewY}px) scale(${viewScale})`;
+  $('#zoomVal').textContent = Math.round(viewScale * 100) + '%';
+}
+function zoomBy(delta, cx, cy) {
+  const wrap = $('#canvasWrap');
+  const rect = wrap.getBoundingClientRect();
+  if (cx === undefined) { cx = rect.width/2; cy = rect.height/2; }
+  const oldScale = viewScale;
+  const newScale = Math.max(0.4, Math.min(2.5, +(viewScale + delta).toFixed(2)));
+  if (newScale === oldScale) return;
+  const wx = (cx - viewX) / oldScale;
+  const wy = (cy - viewY) / oldScale;
+  viewScale = newScale;
+  viewX = cx - wx * newScale;
+  viewY = cy - wy * newScale;
+  applyView();
+}
+function resetView() { viewScale = 1; viewX = 0; viewY = 0; applyView(); }
+function fitView() {
+  const wrap = $('#canvasWrap');
+  const sx = (wrap.clientWidth - 32) / 1600;
+  const sy = (wrap.clientHeight - 32) / 800;
+  viewScale = Math.min(sx, sy);
+  viewX = (wrap.clientWidth - 1600 * viewScale) / 2;
+  viewY = (wrap.clientHeight - 800 * viewScale) / 2;
+  applyView();
+}
+function bindCanvasInteractions() {
+  const wrap = $('#canvasWrap');
+  let dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  wrap.addEventListener('mousedown', e => {
+    if (e.target.closest('.node, .legend, .zoom-bar, .node-modal-mask, .fact-summary')) return;
+    dragging = true;
+    moved = false;
+    sx = e.clientX; sy = e.clientY;
+    ox = viewX; oy = viewY;
+    wrap.classList.add('grabbing');
+    $('#viewport').classList.add('dragging');
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    if (Math.abs(e.clientX - sx) > 3 || Math.abs(e.clientY - sy) > 3) moved = true;
+    viewX = ox + (e.clientX - sx);
+    viewY = oy + (e.clientY - sy);
+    applyView();
+  });
+  document.addEventListener('mouseup', () => {
+    if (dragging && moved) suppressCanvasClick = true;
+    dragging = false;
+    wrap.classList.remove('grabbing');
+    $('#viewport').classList.remove('dragging');
+  });
+  wrap.addEventListener('wheel', e => {
+    if (e.target.closest('.node, .legend, .zoom-bar, .node-modal-mask, .fact-summary')) return;
+    e.preventDefault();
+    const rect = wrap.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    zoomBy(e.deltaY > 0 ? -0.1 : 0.1, cx, cy);
+  }, { passive: false });
+}
+
+/* ===== Toast ===== */
+let toastTimer;
+function showToast(text, type) {
+  const t = $('#toast');
+  t.className = 'toast ' + (type||'') + ' show';
+  t.textContent = text;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast ' + (type||''), 2200);
+}
+
+/* ===== Tooltip ===== */
+function showTooltip(e, n, d) {
+  const t = $('#tooltip');
+  t.innerHTML = `<b>${n.title}</b><br>${d.key}<br><span style="color:#9ca3af">${d.sub}</span><br>👍 ${d.badges[0]} 已证 / ❓ ${d.badges[1]} 缺口 / ⚡ ${d.badges[2]} 矛盾`;
+  t.style.left = (e.clientX + 14) + 'px';
+  t.style.top  = (e.clientY + 14) + 'px';
+  t.classList.add('show');
+}
+function hideTooltip() { $('#tooltip').classList.remove('show'); }
+
+/* ===== Tab 切换 ===== */
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === name));
+  if (name === 'evi') renderEvi();
+  if (name === 'task') renderTask();
+  if (name === 'log') renderLog();
+}
+
+/* ===== 历史抽屉 ===== */
+const HIST = [
+  { v:'v5', name:'处罚签发', time:'2026-04-06 14:21', text:'……依据《治安管理处罚法》第四十三条第一款，对周枫处以行政拘留五日。' },
+  { v:'v4', name:'认罚回写', time:'2026-04-06 11:30', text:'……案发后周枫主动到案，对违法事实供认不讳，认错认罚。' },
+  { v:'v3', name:'诊断证明', time:'2026-04-06 11:11', text:'……周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。' },
+  { v:'v2', name:'笔录回写', time:'2026-04-06 10:32', text:'……周枫徒手扇打李江左脸一次。' },
+  { v:'v1', name:'警情接入', time:'2026-04-06 09:56', text:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突。' },
+];
+function toggleHistory() {
+  const d = $('#histDrawer');
+  d.classList.toggle('show');
+  if (d.classList.contains('show')) {
+    $('#histBody').innerHTML = HIST.map((h, i) => `
+      <div class="ver-item ${i===0?'active':''}" onclick="selectVer(${i})">
+        <div class="vt">${h.v} · ${h.name}</div>
+        <div class="vd">${h.time}</div>
+      </div>
+    `).join('') + `<div class="ver-preview" id="verPrev">${HIST[0].text}</div>`;
+  }
+}
+function selectVer(i) {
+  document.querySelectorAll('.ver-item').forEach((it, j) => it.classList.toggle('active', i===j));
+  $('#verPrev').textContent = HIST[i].text;
+}
+
+/* ===== 证据池 ===== */
+function renderEvi() {
+  const data = [
+    { id:'E-001', name:'警情概述', tag:'警情', src:'固证精灵', desc:'初步认定为肢体冲突', bar:['y','g','g'] },
+    { id:'E-002', name:'李江身份核验', tag:'核验', src:'公安系统', desc:'身份一致·无前科', bar:['g','g','g'] },
+    { id:'E-003', name:'伤情照片', tag:'照片', src:'固证精灵', desc:'左脸明显红肿', bar:['g↑','g','g'] },
+    { id:'E-004', name:'周枫身份核验', tag:'核验', src:'公安系统', desc:'身份一致·无前科', bar:['g','g','g'] },
+    { id:'E-005', name:'证人吴渔证言', tag:'证人', src:'笔录Agent', desc:'看到扇了一巴掌', bar:['y','g','g'] },
+    { id:'E-006', name:'李江询问笔录', tag:'笔录', src:'笔录Agent', desc:'扇打左脸一次', bar:['y','g','g'] },
+    { id:'E-007', name:'诊断证明', tag:'诊断', src:'民警上传', desc:'左脸软组织挫伤', bar:['g','g','g'] },
+  ];
+  $('#eviGrid').innerHTML = data.map(e => `
+    <div class="list-card" onclick="openMaterialDrawerByName('${escapeAttr(e.name)}')" style="cursor:pointer;">
+      <h4>${e.id} · ${e.name}</h4>
+      <div class="meta">[${e.tag}] · 来源：${e.src}</div>
+      <div class="desc">作用：${e.desc}</div>
+      <div class="three-tags">
+        ${tagSeg('真', e.bar[0])} ${tagSeg('合', e.bar[2])} ${tagSeg('关', e.bar[1])}
+      </div>
+    </div>
+  `).join('');
+}
+function tagSeg(label, c) {
+  const up = c.includes('↑');
+  const cl = c[0];
+  const color = cl==='g'?'#16a34a':cl==='y'?'#d97706':'#b91c1c';
+  return `<span class="tag-mini" style="background:${color}">${label}${up?' ↑':''}</span>`;
+}
+
+/* ===== 任务看板 ===== */
+function renderTask() {
+  const data = [
+    { id:'T-X12', name:'对周枫再次询问', src:'矛盾调解', srcCls:'#fb923c', status:'待处理',
+      assoc:'工具/经过', reason:'动作描述冲突，建议采信李江', evis:'E-006 笔录 / E-001 警情' },
+    { id:'T-005', name:'获取周枫自书', src:'外部回写', srcCls:'#3b82f6', status:'进行中',
+      assoc:'嫌疑人', reason:'补充嫌疑人侧陈述', evis:'—' },
+  ];
+  $('#taskGrid').innerHTML = data.map(t => `
+    <div class="list-card" style="border-left:4px solid ${t.srcCls}">
+      <h4>${t.id} · ${t.name}</h4>
+      <div class="meta">[${t.src}] · ${t.status}</div>
+      <div class="desc">关联要素：${t.assoc}<br>触发原因：${t.reason}<br>关联证据：${t.evis}</div>
+      <div class="three-tags">
+        <button class="tag-mini" style="background:#2563eb;cursor:pointer;" onclick="jumpToConflict('tool')">查看矛盾详情</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ===== 决策日志 ===== */
+function renderLog() {
+  const logs = [
+    { time:'10:32:15', type:'三性升级', cls:'system', role:'system', text:'证据 E-003（伤情照片）真实性 🟡 → 🟢<br>原因：因证据 E-007（诊断证明）印证<br>关联要素：后果' },
+    { time:'10:32:20', type:'矛盾检出', cls:'system', role:'system', text:'工具/经过 动作描述冲突<br>冲突证据：E-006（笔录·李江"扇打左脸"）↔ 警情概述（"推搡"）<br>分级：强提示' },
+    { time:'10:32:21', type:'矛盾调解·建议', cls:'system', role:'system', text:'智能分析：扫描该要素证据 → E-005（证人吴渔）佐证<br>建议：采信 E-006（李江），理由：证人证言印证<br>派生任务：T-X12 对周枫再次询问' },
+    { time:'10:35:42', type:'矛盾调解·确认', cls:'human', role:'human', text:'民警赵武采纳系统建议<br>关联矛盾：工具/经过 动作描述冲突' },
+    { time:'10:18:00', type:'立案审批', cls:'human', role:'human', text:'民警赵武签发立案审批表' },
+    { time:'10:05:33', type:'程序核验', cls:'system', role:'system', text:'4 项核验自动通过：身份/前科/管辖/治安期限' },
+  ];
+  $('#logList').innerHTML = logs.map(l => `
+    <div class="log-line ${l.cls}">
+      <div class="lt"><span class="lt-time">[${l.time}]</span>${l.type}<span class="role-tag ${l.role==='system'?'s':'h'}">${l.role==='system'?'系统自动':'人工确认'}</span></div>
+      <div class="lm">${l.text}</div>
+    </div>
+  `).join('');
+}
+
+/* ===== 事件绑定 ===== */
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => switchTab(t.dataset.tab));
+});
+document.querySelectorAll('.step-pill').forEach(p => {
+  p.addEventListener('click', () => switchStep(parseInt(p.dataset.step)));
+});
+/* 单击画布空白收起展开节点；拖动结束产生的 click 会在捕获阶段吞掉 */
+$('#canvasWrap').addEventListener('click', e => {
+  if (!suppressCanvasClick) return;
+  suppressCanvasClick = false;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+}, true);
+$('#canvasWrap').addEventListener('click', e => {
+  if (e.target.closest('.node, .legend, .zoom-bar')) return;
+  collapseNodeInline();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    collapseNodeInline();
+    $('#histDrawer').classList.remove('show');
+    closeMaterialDrawer();
+  }
+  if (e.key === 'ArrowRight' || e.key === ' ') {
+    if (currentStep < 7) switchStep(currentStep + 1);
+    e.preventDefault();
+  }
+  if (e.key === 'ArrowLeft') {
+    if (currentStep > 1) switchStep(currentStep - 1);
+  }
+});
+
+/* ===== 初始化 ===== */
+bindCanvasInteractions();
+switchStep(1);
+// 初次根据画布大小自适应一次
+setTimeout(fitView, 50);
+window.addEventListener('resize', () => { fitView(); });
+</script>
+</body>
+</html>

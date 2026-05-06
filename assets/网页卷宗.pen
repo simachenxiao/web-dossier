@@ -1,0 +1,581 @@
+{
+  "version": "2.10",
+  "children": [
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": 0,
+      "y": 0,
+      "name": "任务中心",
+      "clip": true,
+      "width": 1920,
+      "height": 1080,
+      "fill": "#FAF9F6",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "XBPtW",
+          "name": "系统标题栏",
+          "width": "fill_container",
+          "height": 60,
+          "fill": "#FFFFFF",
+          "stroke": {
+            "align": "outside",
+            "thickness": {
+              "bottom": 1
+            },
+            "fill": "#0000000D"
+          },
+          "gap": 12,
+          "padding": [
+            0,
+            24
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "yMfgF",
+              "name": "lLogoIcon",
+              "width": 32,
+              "height": 32,
+              "fill": "#3B82F6",
+              "cornerRadius": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "isLXv",
+                  "name": "lLogoIco",
+                  "width": 18,
+                  "height": 18,
+                  "iconFontName": "shield",
+                  "iconFontFamily": "lucide",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "mJNF4",
+              "name": "lTitle",
+              "fill": "#1C1917",
+              "content": "执法办案智能体",
+              "fontFamily": "Inter",
+              "fontSize": 17,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "Xhmm5",
+              "name": "lDivider",
+              "width": 1,
+              "height": 20,
+              "fill": "#0000001A"
+            },
+            {
+              "type": "text",
+              "id": "cOtsA",
+              "name": "lSubtitle",
+              "fill": "#94A3B8",
+              "content": "任务中心",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "M9NHC",
+              "name": "lSpacer",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "#00000000"
+            },
+            {
+              "type": "frame",
+              "id": "LXJ5M",
+              "name": "lUserTag",
+              "height": 34,
+              "fill": "#F8F7F5",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "outside",
+                "thickness": 1,
+                "fill": "#E7E5E4"
+              },
+              "gap": 8,
+              "padding": [
+                0,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "GS0jI",
+                  "name": "lUserIcon",
+                  "width": 14,
+                  "height": 14,
+                  "iconFontName": "user",
+                  "iconFontFamily": "lucide",
+                  "fill": "#64748B"
+                },
+                {
+                  "type": "text",
+                  "id": "DdVoh",
+                  "name": "lUserText",
+                  "fill": "#475569",
+                  "content": "警员 张明 / 330102",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NuiCE",
+              "name": "lLogoutBtn",
+              "height": 34,
+              "fill": "#FEF2F2",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "outside",
+                "thickness": 1,
+                "fill": "#FECACA"
+              },
+              "gap": 6,
+              "padding": [
+                0,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "SPj0d",
+                  "name": "lLogoutIcon",
+                  "width": 14,
+                  "height": 14,
+                  "iconFontName": "log-out",
+                  "iconFontFamily": "lucide",
+                  "fill": "#DC2626"
+                },
+                {
+                  "type": "text",
+                  "id": "kUzoe",
+                  "name": "lLogoutText",
+                  "fill": "#DC2626",
+                  "content": "退出",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "uthJx",
+          "name": "内容区",
+          "width": "fill_container",
+          "height": "fill_container",
+          "children": [
+            {
+              "type": "frame",
+              "id": "i8drY",
+              "name": "左侧AI对话框",
+              "width": 700,
+              "height": "fill_container",
+              "fill": "#FFFFFF",
+              "stroke": {
+                "align": "outside",
+                "thickness": {
+                  "right": 1
+                },
+                "fill": "#0000000D"
+              },
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "1Pg90",
+                  "name": "标题栏",
+                  "width": "fill_container",
+                  "height": 60,
+                  "fill": "#FFFFFF",
+                  "stroke": {
+                    "align": "outside",
+                    "thickness": {
+                      "bottom": 1
+                    },
+                    "fill": "#0000000D"
+                  },
+                  "gap": 12,
+                  "padding": [
+                    0,
+                    20
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "QskaN",
+                      "name": "titleIconBg",
+                      "width": 32,
+                      "height": 32,
+                      "fill": "#3B82F610",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "wJB4Y",
+                          "name": "titleIconDot",
+                          "width": 18,
+                          "height": 18,
+                          "iconFontName": "zap",
+                          "iconFontFamily": "lucide",
+                          "fill": "#3B82F6"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "5uAy7",
+                      "name": "titleTextGroup",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FXmLW",
+                          "name": "titleText",
+                          "fill": "#1C1917",
+                          "content": "小威智能体",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "8jcE9",
+                          "name": "statusRow",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "QczCe",
+                              "name": "statusDot",
+                              "fill": "#16A34A",
+                              "width": 6,
+                              "height": 6
+                            },
+                            {
+                              "type": "text",
+                              "id": "KtiEh",
+                              "name": "statusText",
+                              "fill": "#16A34A",
+                              "content": "在线",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Al2Ni",
+                  "name": "对话消息区域",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "#FAF9F6",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Du2CT",
+                      "name": "AI消息1",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "tiHeA",
+                          "name": "aiAvatar1",
+                          "width": 32,
+                          "height": 32,
+                          "fill": "#3B82F615",
+                          "cornerRadius": 16,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "1lmGg",
+                              "name": "aiAvatarIcon1",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "bot",
+                              "iconFontFamily": "lucide",
+                              "fill": "#3B82F6"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "jzVIt",
+                          "name": "aiBubble1",
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 12,
+                          "stroke": {
+                            "align": "outside",
+                            "thickness": 1,
+                            "fill": "#E7E5E4"
+                          },
+                          "layout": "vertical",
+                          "gap": 4,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "cPQaK",
+                              "name": "aiBubbleText1",
+                              "fill": "#1C1917",
+                              "textGrowth": "fixed-width",
+                              "width": 280,
+                              "content": "您好！我是您的智能助手，可以帮您处理案件任务。请问有什么需要帮忙的吗？",
+                              "lineHeight": 1.6,
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kf95T",
+                      "name": "用户消息1",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "l7ZoT",
+                          "name": "userBubble1",
+                          "fill": "#3B82F6",
+                          "cornerRadius": 12,
+                          "layout": "vertical",
+                          "gap": 4,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "EhI1b",
+                              "name": "userBubbleText1",
+                              "fill": "#FFFFFF",
+                              "textGrowth": "fixed-width",
+                              "width": 220,
+                              "content": "帮我查看今日待处理的任务列表",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "8i9EG",
+                      "name": "AI消息2",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "hJRVM",
+                          "name": "aiAvatar2",
+                          "width": 32,
+                          "height": 32,
+                          "fill": "#3B82F615",
+                          "cornerRadius": 16,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "3jAkJ",
+                              "name": "aiAvatarIcon2",
+                              "width": 16,
+                              "height": 16,
+                              "iconFontName": "bot",
+                              "iconFontFamily": "lucide",
+                              "fill": "#3B82F6"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "7dAHi",
+                          "name": "aiBubble2",
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 12,
+                          "stroke": {
+                            "align": "outside",
+                            "thickness": 1,
+                            "fill": "#E7E5E4"
+                          },
+                          "layout": "vertical",
+                          "gap": 6,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "X35hD",
+                              "name": "aiBubbleText2",
+                              "fill": "#1C1917",
+                              "textGrowth": "fixed-width",
+                              "width": 280,
+                              "content": "为您找到今日待处理任务共 3 项：\n• 制作被害人询问笔录\n• 开具传唤证\n• 行政立案审批\n\n请点击右侧任务卡片进行处理。",
+                              "lineHeight": 1.6,
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "X32ga",
+                  "name": "输入区域",
+                  "width": "fill_container",
+                  "height": 80,
+                  "fill": "#FFFFFF",
+                  "stroke": {
+                    "align": "outside",
+                    "thickness": {
+                      "top": 1
+                    },
+                    "fill": "#0000000D"
+                  },
+                  "gap": 8,
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Nxt2E",
+                      "name": "inputBox",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": "#F8F7F5",
+                      "cornerRadius": 12,
+                      "stroke": {
+                        "align": "outside",
+                        "thickness": 1,
+                        "fill": "#E7E5E4"
+                      },
+                      "gap": 8,
+                      "padding": [
+                        0,
+                        10
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "QnyVj",
+                          "name": "fileBtn",
+                          "width": 28,
+                          "height": 28,
+                          "fill": "#F1F5F9",
+                          "cornerRadius": 8,
+                          "stroke": {
+                            "align": "outside",
+                            "thickness": 1,
+                            "fill": "#E2E8F0"
+                          },
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "wj3ai",
+                              "name": "fileBtnIcon",
+                              "width": 14,
+                              "height": 14,
+                              "iconFontName": "paperclip",
+                              "iconFontFamily": "lucide",
+                              "fill": "#64748B"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "knH5n",
+                          "name": "inputPlaceholder",
+                          "fill": "#94A3B8",
+                          "content": "请输入任务指令...",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "F3y9n",
+                      "name": "sendBtn",
+                      "width": 40,
+                      "height": 40,
+                      "fill": "#3B82F6",
+                      "cornerRadius": 10,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "t7p7m",
+                          "name": "sendIcon",
+                          "width": 18,
+                          "height": 18,
+                          "iconFontName": "send",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

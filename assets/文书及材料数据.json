@@ -1,0 +1,378 @@
+      
+{
+  "jqbh": "J202604060001",
+  "ajbh": "0001",
+  "ajjd": "警情待处理",
+  "lrsj": "2026-4-6 11:03:52",
+  "xgsj": "2026-4-6 11:03:52",
+  "dasj": "2026-4-7 10:00:00",
+  "jqxx": {
+    "bjr": "李江",
+    "bjsj": "2026-4-6 09:57:00",
+    "bjrlxdh": "13977775555",
+    "jqdz": "诚高大厦6楼会议室",
+    "bjnr": "我被我的同事周枫打了，脸已经肿了，地点在诚高大厦6楼会议室。",
+    "jqlb": "行政（治安）类警情",
+    "jqlx": "侵犯人身权利",
+    "cjr": [
+      "赵武",
+      "钱柳"
+    ]
+  },
+  "gzxx": {
+    "gzsj": "2026-4-6 10:05:00",
+    "gzdd": "诚高大厦6楼会议室"
+  },
+  "clxx": [
+    {
+      "cllx": "人员照片",
+      "clmc": "受害人人像",
+      "jqbh": "J202604060001",
+      "ryxm": "李江",
+      "wjxx": {
+      }
+    },
+    {
+      "cllx": "人员照片",
+      "clmc": "嫌疑人人像",
+      "jqbh": "J202604060001",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    },
+    {
+      "cllx": "现场照片",
+      "clmc": "现场",
+      "jqbh": "J202604060001",
+      "ryxm": "",
+      "wjxx": {
+      }        
+    },
+    {
+      "cllx": "伤势照片",
+      "clmc": "受害人伤势",
+      "jqbh": "J202604060001",
+      "ryxm": "李江",
+      "wjxx": {
+      }
+    },
+    {
+      "cllx": "嫌疑人自书材料",
+      "clmc": "嫌疑人自书材料",
+      "jqbh": "J202604060001",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    }
+  ],
+  "wsxx": [
+    {
+      "wsmc": "体表原始伤情记录表",
+      "wslx": "tbyssqjlb",
+      "ryxm": "李江",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "医院伤情检查通知单",
+      "wslx": "yysqjctzd",
+      "ryxm": "李江",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "接报回执",
+      "wslx": "jbhz",
+      "ryxm": "李江",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "接报案登记表",
+      "wslx": "jbadjb",
+      "ryxm": "",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "接报审批表",
+      "wslx": "jbspb",
+      "ryxm": "",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "行政案件立案登记表",
+      "wslx": "xzajladjb",
+      "ryxm": "",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "行政案件立案告知书",
+      "wslx": "xzajlagzs",
+      "ryxm": "李江",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "传唤证",
+      "wslx": "chz",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "到案经过",
+      "wslx": "dajg",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "呈请传唤审批表",
+      "wslx": "cqchspb",
+      "ryxm": "",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "行政案件快速办理权利义务告知书",
+      "wslx": "xzajksblqlywgzs",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "行政处罚告知笔录",
+      "wslx": "xzcfgzbl",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "行政处罚决定书",
+      "wslx": "xzcfjds",
+      "ryxm": "周枫",
+      "wjxx": {
+      }
+    },
+    {
+      "wsmc": "呈请行政处罚审批表",
+      "wslx": "cqxzcfspb",
+      "ryxm": "",
+      "wjxx": {
+      }
+    }
+  ],
+  "ryxx": [
+    {
+      "xm": "李江",
+      "xb": "男",
+      "nl": 29,
+      "sfzh": "330110199607015555",
+      "hjdxz": "杭州市余杭区保利花园7幢901",
+      "rylb": "受害人",
+      "lxdh": "13977775555",
+      "csrq": "1996-7-1",
+      "mz": "汉族"
+    },
+    {
+      "xm": "周枫",
+      "xb": "男",
+      "nl": 31,
+      "sfzh": "330110199504013333",
+      "hjdxz": "杭州市余杭区大湾花园1幢101",
+      "rylb": "违法嫌疑人",
+      "lxdh": "13911113333",
+      "csrq": "1995-4-1",
+      "mz": "汉族"
+    }
+  ],
+  "ajxx": {
+    "jqbh": "J202604060001",
+    "ajbh": "0001",
+    "ajmc": "周枫涉嫌殴打他人案",
+    "ajzt": "案件状态",
+    "ajfsd": "诚高大厦6楼会议室",
+    "zbmj": "赵武",
+    "xbmj": "钱柳",
+    "ajfskssj": "2026-4-6 09:55:00",
+    "ajfsjssj": "2026-4-6 09:56:00",
+    "basj": "2026-4-6 09:57:00",
+    "jyaq": "2026年4月6日9时55分左右，诚高大厦6楼会议室内，报警人李江与同事周枫开会时发生口角，周枫用手殴打李江面部，致其脸部红肿。",
+    "ssrs": "1",
+    "sazz": "0",
+    "ajly": "电话报警",
+    "slsj": "2026-4-6 15:00:00"
+  },
+  "blxx": [
+    {
+      "ms": "受害人李江第一次笔录",
+      "blsj": "2026-4-6",
+      "qa": [
+        {"q": "请陈述事发经过。", "a": "2026年4月1日10时许，在诚高大厦6楼会议室，我与同事周枫因开会意见不合发生口角。周枫突然用左手打了我右面部一下，致我右脸红肿。他没有使用工具，我未还手，现场有同事吴渔看到。"},
+        {"q": "你的伤情如何？", "a": "我面部红肿疼痛。民警给我开具了《医院伤情检查通知单》，我到医院检查，结论为“面部软组织挫伤”，构成轻微伤。"},
+        {"q": "你有什么要求？", "a": "我要求公安机关依法处理周枫的殴打行为，追究其法律责任。"},
+        {"q": "以上内容是否属实？", "a": "属实。"}
+      ]
+    }
+  ],
+  "jzxx": {
+  },
+  "tree": {
+    "id": "root",
+    "name": "周枫殴打李江案",
+    "type": "root",
+    "expanded": true,
+    "children": [
+      {
+        "id": "time", "name": "时间", "type": "element", "status": "verified",
+        "conclusion": "2026年4月6日9时55分左右", "matCount": 3, "consistent": "是", "inconsistent": 0,
+        "gap": "", "expanded": false,
+        "children": [
+          { "id": "time-1", "name": "接报案登记表", "type": "material", "status": "verified",
+            "excerpt": "案发时间：2026年4月6日09:57",
+            "filePath": "/案件元数据/接报案登记表.pdf", "supports": ["time","place"] },
+          { "id": "time-2", "name": "受害人笔录", "type": "material", "status": "verified",
+            "excerpt": "案发时间：9时55分左右，周枫动手后我立即报警。",
+            "filePath": "/案件元数据/受害人询问笔录.pdf", "supports": ["time","place","person","object","plot","consequence"] },
+          { "id": "time-3", "name": "接报审批表", "type": "material", "status": "verified",
+            "excerpt": "案发时间：2026年4月6日09:57",
+            "filePath": "/案件元数据/接报审批表.pdf", "supports": ["time","place"] }
+        ]
+      },
+      {
+        "id": "place", "name": "地点", "type": "element", "status": "verified",
+        "conclusion": "诚高大厦6楼会议室", "matCount": 4, "consistent": "是", "inconsistent": 0,
+        "hasImage": true, "imgUrl": "/案件元数据/现场.jpg",
+        "gap": "", "expanded": false,
+        "children": [
+          { "id": "place-1", "name": "接报案登记表", "type": "material", "status": "verified",
+            "excerpt": "案发地址：诚高大厦6楼会议室。", "filePath": "/案件元数据/接报案登记表.pdf", "supports": ["time","place"] },
+          { "id": "place-2", "name": "受害人笔录", "type": "material", "status": "verified",
+            "excerpt": "地点：公司大会议室，我在整理大会议桌上的东西时他冲过来。", "filePath": "/案件元数据/受害人询问笔录.pdf", "supports": ["time","place","person","object","plot"] },
+          { "id": "place-3", "name": "现场照片", "type": "material", "status": "verified",
+            "excerpt": "会议室现场，会议桌及座椅清晰可见，与笔录描述一致。",
+            "filePath": "/案件元数据/现场.jpg", "imgUrl": "/案件元数据/现场.jpg", "supports": ["place","plot"] },
+          { "id": "place-4", "name": "接报回执", "type": "material", "status": "verified",
+            "excerpt": "出警地点：诚高大厦6楼。", "filePath": "/案件元数据/接报回执.pdf", "supports": ["place","time"] }
+        ]
+      },
+      {
+        "id": "person", "name": "人物", "type": "element", "status": "collected",
+        "conclusion": "周枫（男，31岁）", "matCount": 3, "consistent": "是", "inconsistent": 0,
+        "hasImage": true, "imgUrl": "/案件元数据/嫌疑人人像.jpg",
+        "gap": "", "expanded": false,
+        "children": [
+          { "id": "person-1", "name": "嫌疑人人像", "type": "material", "status": "collected",
+            "excerpt": "周枫正面照片，可用于现场辨认。",
+            "imgUrl": "/案件元数据/嫌疑人人像.jpg", "filePath": null, "supports": ["person"] },
+          { "id": "person-2", "name": "受害人笔录", "type": "material", "status": "verified",
+            "excerpt": "同事周枫先动手打我，我认识他，是我们项目组的。", "filePath": "/案件元数据/受害人询问笔录.pdf", "supports": ["time","place","person","object","plot"] },
+          { "id": "person-3", "name": "行政案件立案登记表", "type": "material", "status": "verified",
+            "excerpt": "违法嫌疑人：周枫，身份证号：330110199504013333。",
+            "filePath": "/案件元数据/行政案件立案登记表.pdf", "supports": ["person"] }
+        ]
+      },
+      {
+        "id": "object", "name": "对象", "type": "element", "status": "collected",
+        "conclusion": "李江（男，29岁）", "matCount": 3, "consistent": "是", "inconsistent": 0,
+        "hasImage": true, "imgUrl": "/案件元数据/受害人人像.jpg",
+        "gap": "", "expanded": false,
+        "children": [
+          { "id": "object-1", "name": "受害人人像", "type": "material", "status": "collected",
+            "excerpt": "李江正面照片。",
+            "imgUrl": "/案件元数据/受害人人像.jpg", "filePath": null, "supports": ["object"] },
+          { "id": "object-2", "name": "受害人伤势照片", "type": "material", "status": "collected",
+            "excerpt": "右脸面部红肿，与被害人笔录一致。",
+            "imgUrl": "/案件元数据/受害人伤势.jpg", "filePath": null, "supports": ["object","consequence"] },
+          { "id": "object-3", "name": "受害人笔录", "type": "material", "status": "verified",
+            "excerpt": "受害人李江陈述：面部被打，右脸红肿疼痛，无财产损失。", "filePath": "/案件元数据/受害人询问笔录.pdf", "supports": ["time","place","person","object","plot","consequence"] }
+        ]
+      },
+      {
+        "id": "tool", "name": "工具", "type": "element", "status": "collected",
+        "conclusion": "徒手", "matCount": 2, "consistent": "是", "inconsistent": 1,
+        "gap": "", "expanded": false,
+        "children": [
+          { "id": "tool-1", "name": "受害人笔录", "type": "material", "status": "collected",
+            "excerpt": "无工具，周枫用左手直接打我，没有借助任何器械。", "filePath": "/案件元数据/受害人询问笔录.pdf", "supports": ["tool","plot"] },
+          { "id": "tool-2", "name": "嫌疑人自书材料", "type": "material", "status": "collected",
+            "excerpt": "使用肢体殴打方式。即：用左手手掌击打对方的右面部。",
+            "filePath": "/案件元数据/嫌疑人自书材料.pdf", "supports": ["tool","plot"] }
+        ]
+      },
+      {
+        "id": "consequence", "name": "后果", "type": "element", "status": "collected",
+        "conclusion": "面部软组织挫伤（轻微伤）", "matCount": 3, "consistent": "是", "inconsistent": 0,
+        "hasImage": true, "imgUrl": "/案件元数据/受害人伤势.jpg",
+        "gap": "", "expanded": false,
+        "children": [
+          { "id": "consequence-1", "name": "体表原始伤情记录表", "type": "material", "status": "collected",
+            "excerpt": "李江面部红肿，有压痛感。记录时间：2026年4月6日。",
+            "filePath": "/案件元数据/体表原始伤情记录表.pdf", "supports": ["consequence","object"] },
+          { "id": "consequence-2", "name": "医院伤情检查通知单", "type": "material", "status": "collected",
+            "excerpt": "诊断结论：面部软组织挫伤（轻微伤）。",
+            "filePath": "/案件元数据/医院伤情检查通知单.pdf", "supports": ["consequence"] },
+          { "id": "consequence-3", "name": "受害人伤势照片", "type": "material", "status": "collected",
+            "excerpt": "右脸可见红肿淤痕，与诊断结论一致。",
+            "imgUrl": "/案件元数据/受害人伤势.jpg", "filePath": null, "supports": ["consequence","object"] }
+        ]
+      },
+      {
+        "id": "plot", "name": "情节", "type": "element", "status": "pending",
+        "conclusion": "经过：周枫因口角徒手殴打李江面部；认错认罚", "matCount": 5, "consistent": "待核实", "inconsistent": 1,
+        "gap": "嫌疑人笔录未完成，情节无法闭合", "expanded": false,
+        "children": [
+          {
+            "id": "plot-cause", "name": "起因经过", "type": "sub", "status": "pending",
+            "summary": "被害人笔录已采集，嫌疑人笔录缺失，起因经过待核实",
+            "gap": "嫌疑人笔录未采集", "expanded": false,
+            "children": [
+              { "id": "plot-cause-1", "name": "受害人笔录", "type": "material", "status": "verified",
+                "excerpt": "周枫先动手，用左手打我右脸，我没有还手，同事吴渔在场目击。", "filePath": "/案件元数据/受害人询问笔录.pdf", "supports": ["plot","time","person","object"] },
+              { "id": "plot-cause-2", "name": "嫌疑人笔录（缺失）", "type": "material", "status": "missing",
+                "excerpt": "尚未采集。嫌疑人已被传唤，笔录待完成。缺失导致行为经过无法从双方视角核实。",
+                "filePath": null, "supports": ["plot","tool"] },
+              { "id": "plot-cause-3", "name": "现场照片", "type": "material", "status": "collected",
+                "excerpt": "会议室现场照片，可印证行为地点。",
+                "imgUrl": "/案件元数据/现场.jpg", "filePath": null, "supports": ["place","plot"] }
+            ]
+          },
+          {
+            "id": "plot-confess", "name": "认错认罚", "type": "sub", "status": "pending",
+            "summary": "有自书材料，未完成正式询问笔录",
+            "gap": "嫌疑人笔录未完成", "expanded": false,
+            "children": [
+              { "id": "plot-confess-1", "name": "嫌疑人自书材料", "type": "material", "status": "collected",
+                "excerpt": "有书写认错意愿，但措辞模糊，正式笔录确认前态度待核实。",
+                "filePath": "/案件元数据/嫌疑人自书材料.pdf", "supports": ["plot","tool"] },
+              { "id": "plot-confess-2", "name": "行政案件快速办理权利义务告知书", "type": "material", "status": "collected",
+                "excerpt": "已告知周枫快速办理程序的权利与义务。",
+                "filePath": "/案件元数据/行政案件快速办理权利义务告知书.pdf", "supports": ["plot"] }
+            ]
+          },
+          {
+            "id": "plot-severity", "name": "从重/从轻情节", "type": "sub", "status": "collected",
+            "summary": "无前科，无从重从轻情节",
+            "gap": "", "expanded": false,
+            "children": [
+              { "id": "plot-severity-1", "name": "传唤证", "type": "material", "status": "collected",
+                "excerpt": "已对周枫依法传唤，主动配合。",
+                "filePath": "/案件元数据/传唤证（行政）.pdf", "supports": ["plot"] },
+              { "id": "plot-severity-2", "name": "到案经过", "type": "material", "status": "collected",
+                "excerpt": "周枫经依法传唤后到案接受调查，配合说明案发经过。",
+                "filePath": "/案件元数据/到案经过.pdf", "supports": ["plot"] },
+              { "id": "plot-severity-3", "name": "行政处罚告知笔录", "type": "material", "status": "collected",
+                "excerpt": "已告知周枫拟作出行政处罚的事实、理由、依据及权利。",
+                "filePath": "/案件元数据/行政处罚告知笔录.pdf", "supports": ["plot"] }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+    
