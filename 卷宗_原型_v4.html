@@ -447,6 +447,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: #e0e7ff; color: #3730a3;
 }
 .evidence-card .ev-desc { color: #4b5563; line-height: 1.5; margin-bottom: 6px; }
+.evidence-card .ev-meta {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px;
+  margin: 6px 0; padding: 6px 8px; border-radius: 6px;
+  background: #fff; color: #6b7280; font-size: 10px; line-height: 1.4;
+}
+.evidence-card .ev-meta b { color: #374151; font-weight: 600; }
 .evidence-card .mini-bar { display: flex; gap: 3px; }
 .evidence-card .mini-bar .seg {
   font-size: 9px; padding: 1px 5px; border-radius: 8px; color: #fff; font-weight: 600;
@@ -717,7 +723,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <div class="step-pill active" data-step="1">① 警情接入</div>
         <div class="step-pill" data-step="2">② 程序核验</div>
         <div class="step-pill" data-step="3">③ 受害人笔录</div>
-        <div class="step-pill" data-step="4">④ 诊断证明</div>
+        <div class="step-pill" data-step="4">④ 伤情检查</div>
         <div class="step-pill" data-step="5">⑤ 自书</div>
         <div class="step-pill" data-step="6">⑥ 嫌疑人笔录</div>
         <div class="step-pill" data-step="7">⑦ 处罚签发</div>
@@ -734,9 +740,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <div class="workspace">
     <div class="tabs">
       <div class="tab active" data-tab="graph">🔗 图谱</div>
-      <div class="tab" data-tab="doc">📄 文书<span class="badge">3</span></div>
-      <div class="tab" data-tab="evi">🧾 证据池<span class="badge">7</span></div>
-      <div class="tab" data-tab="task">🗂 任务看板<span class="badge">2</span></div>
+      <div class="tab" data-tab="doc">📄 文书<span class="badge">9</span></div>
+      <div class="tab" data-tab="evi">🧾 证据池<span class="badge">15</span></div>
+      <div class="tab" data-tab="task">🗂 任务看板<span class="badge">3</span></div>
       <div class="tab" data-tab="log">📋 决策日志</div>
     </div>
 
@@ -761,7 +767,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
             </svg>
             <div class="num" id="progNum">5/8</div>
           </div>
-          <div class="miss-pill" id="missPill">缺·自书 缺·诊断证明 缺·调解</div>
+          <div class="miss-pill" id="missPill">缺·自书 缺·伤情检查 缺·调解</div>
           <div class="spacer"></div>
           <div class="main-rel yellow" id="mainRel">补强推进中</div>
         </div>
@@ -775,7 +781,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
               <div class="fact-history-btn" onclick="toggleHistory()">历史 ▾</div>
             </div>
             <div class="fact-body" id="factBody">
-              2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，<span class="new">周枫徒手扇打李江左脸一次。</span>
+              2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生口角，<span class="new">周枫拿起会议桌上的烟灰缸殴打李江头部。</span>
             </div>
           </div>
           <div class="viewport" id="viewport">
@@ -893,9 +899,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
    节点尺寸 240×~140，主链路 y=420 居中 */
 const NODES = {
   conseq:  { id:'conseq',  title:'后果',     x:220,  y:280, w:240, h:160, photo:'assets/被害人伤情.JPG' },
-  tool:    { id:'tool',    title:'工具/手段', x:620,  y:280, w:240, h:160 },
+  tool:    { id:'tool',    title:'工具/手段', x:620,  y:280, w:240, h:160, photo:'assets/作案工具烟灰缸.jpg' },
   victim:  { id:'victim',  title:'受害人',   x:220,  y:520, w:240, h:160, photo:'assets/被害人人像.JPG' },
   suspect: { id:'suspect', title:'嫌疑人',   x:1020, y:280, w:240, h:160, photo:'assets/嫌疑人人像.jpg' },
+  circumstance: { id:'circumstance', title:'情节', x:1020, y:520, w:240, h:160 },
   time:    { id:'time',    title:'时间地点', x:220,  y:60,  w:240, h:160, photo:'assets/现场照片.jpg' },
   witness: { id:'witness', title:'证人',     x:620,  y:60,  w:240, h:160, video:'assets/证人证言.mp4' },
 };
@@ -905,16 +912,17 @@ const STEPS = [
   null, // 占位
   { // 步骤 1：警情接入
     progress:'2/8', mainRel:{cls:'',txt:'待查明'},
-    miss:'缺·自书 缺·诊断证明 缺·询问笔录',
+    miss:'缺·自书 缺·伤情检查 缺·询问笔录',
     factVer:'v1',
-    fact:'<span class="new">2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突。</span>',
+    fact:'<span class="new">2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突。</span>',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'yellow', status:'补强中', key:'左脸红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[1,1,0] },
-      tool:    { state:'yellow', status:'补强中', key:'肢体冲突', sub:'警情概述+证人证言', bar:['y','g','g'], badges:[2,1,0] },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'头部红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[1,1,0] },
+      tool:    { state:'yellow', status:'补强中', key:'持烟灰缸殴打', sub:'警情概述+证人证言', bar:['y','g','g'], badges:[2,1,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
-      victim:  { state:'yellow', status:'补强中', key:'李江·男·31岁', sub:'人像照片已采集·待身份核验', bar:['g','g','g'], badges:[1,2,0] },
-      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁', sub:'人像照片已采集·待身份核验', bar:['g','g','g'], badges:[1,2,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·29岁', sub:'人像照片已采集·待身份核验', bar:['g','g','g'], badges:[1,2,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·31岁', sub:'人像照片已采集·待身份核验', bar:['g','g','g'], badges:[1,2,0] },
+      circumstance: { state:'yellow', status:'补强中', key:'情节待核验', sub:'前科/到案/认罪认罚材料待采集', bar:['y','g','g'], badges:[0,2,0] },
     },
     msgs:[
       {type:'bot', html:'警情已接入，固证精灵已采集 5 条原始证据，已自动构建 7 要素图谱。'},
@@ -923,16 +931,17 @@ const STEPS = [
   },
   { // 步骤 2：程序核验
     progress:'4/8', mainRel:{cls:'yellow',txt:'准备立案'},
-    miss:'缺·自书 缺·诊断证明 缺·询问笔录',
+    miss:'缺·自书 缺·伤情检查 缺·询问笔录',
     factVer:'v1',
-    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突。',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突。',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'yellow', status:'补强中', key:'左脸红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[1,1,0] },
-      tool:    { state:'yellow', status:'补强中', key:'肢体冲突', sub:'警情概述+证人证言', bar:['y','g','g'], badges:[2,1,0] },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'头部红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[1,1,0] },
+      tool:    { state:'yellow', status:'补强中', key:'持烟灰缸殴打', sub:'警情概述+证人证言', bar:['y','g','g'], badges:[2,1,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
-      victim:  { state:'yellow', status:'补强中', key:'李江·男·31岁', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[2,1,0] },
-      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·29岁', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·31岁·初犯', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
     },
     msgs:[
       {type:'bot', html:'已完成 4 项程序性核验：<b>身份/前科/管辖/治安期限</b>，全部通过。'},
@@ -943,38 +952,40 @@ const STEPS = [
   },
   { // 步骤 3：笔录·矛盾（核心场景）
     progress:'5/8', mainRel:{cls:'yellow',txt:'补强推进中'},
-    miss:'缺·自书 缺·诊断证明',
+    miss:'缺·自书 缺·伤情检查',
     factVer:'v2',
-    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，<span class="new">周枫徒手扇打李江左脸一次。</span>',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生口角，<span class="new">周枫拿起会议桌上的烟灰缸殴打李江头部。</span>',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'yellow', status:'补强中', key:'左脸红肿', sub:'伤情照片+李江笔录', bar:['y','y','g'], badges:[2,1,0] },
-      tool:    { state:'yellow', status:'补强中', key:'徒手扇打', sub:'证人证言+李江笔录', bar:['y','g','g'], badges:[2,1,0] },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'头部红肿', sub:'伤情照片+李江笔录', bar:['y','y','g'], badges:[2,1,0] },
+      tool:    { state:'yellow', status:'补强中', key:'持烟灰缸殴打', sub:'证人证言+李江笔录', bar:['y','g','g'], badges:[2,1,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
-      victim:  { state:'yellow', status:'补强中', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
-      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯', sub:'身份核验·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·29岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·31岁·初犯', sub:'身份核验·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
     },
     msgs:[
       {type:'bot', html:'笔录 Agent 已回写：<b>李江《询问笔录》</b>(E-006)。'},
-      {type:'bot', html:'李江笔录已入池，描述与证人证言一致：<b>徒手扇打左脸</b>。'},
+      {type:'bot', html:'李江笔录已入池，描述与证人证言一致：<b>用烟灰缸殴打头部</b>。'},
     ]
   },
-  { // 步骤 4：诊断证明
+  { // 步骤 4：伤情检查结论
     progress:'6/8', mainRel:{cls:'yellow',txt:'补强推进中'},
     miss:'缺·自书',
     factVer:'v3',
-    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，<span class="new">致李江左脸软组织挫伤。</span>',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突，周枫用烟灰缸殴打李江头部，<span class="new">致李江头皮挫裂伤。</span>',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
-      tool:    { state:'yellow', status:'补强中', key:'徒手扇打', sub:'证人证言+李江笔录', bar:['y','g','g'], badges:[2,1,0] },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'头皮挫裂伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'yellow', status:'补强中', key:'持烟灰缸殴打', sub:'证人证言+李江笔录', bar:['y','g','g'], badges:[2,1,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
-      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
-      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯', sub:'身份核验·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·29岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·31岁·初犯', sub:'身份核验·待询问', bar:['g','g','g'], badges:[2,1,0] },
+      circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
     },
     msgs:[
-      {type:'bot', html:'诊断证明已上传 · <b>左脸软组织挫伤</b>（E-007）入池。'},
-      {type:'bot', html:'伤情照片真实性 🟡 → 🟢（因诊断证明印证）。'},
+      {type:'bot', html:'伤情检查结论已回写 · <b>头皮挫裂伤</b>（E-007）入池。'},
+      {type:'bot', html:'伤情照片真实性 🟡 → 🟢（因伤情检查结论印证）。'},
       {type:'bot', html:'后果节点三性已齐备。违法事实总结升级到 v3。'},
     ]
   },
@@ -982,40 +993,40 @@ const STEPS = [
     progress:'7/8', mainRel:{cls:'yellow',txt:'补强推进中'},
     miss:'缺·周枫询问笔录',
     factVer:'v3',
-    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突，周枫用烟灰缸殴打李江头部，致李江头皮挫裂伤。',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
-      tool:    { state:'red',    status:'补强中', key:'徒手扇打 ⚡', sub:'自书"推搡" vs 笔录"扇打"', bar:['y','g','g'], badges:[3,0,1], isConflict:true },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'头皮挫裂伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'green',  status:'已证实', key:'烟灰缸殴打头部', sub:'物证+监控+保全材料印证', bar:['g','g','g'], badges:[5,0,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
-      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
-      suspect: { state:'yellow', status:'补强中', key:'周枫·男·32岁·初犯·认错认罚', sub:'已收自书·待询问笔录', bar:['y','g','g'], badges:[3,1,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·29岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·31岁·初犯·认错认罚', sub:'已收自书·待询问笔录', bar:['y','g','g'], badges:[3,1,0] },
+      circumstance: { state:'yellow', status:'补强中', key:'初犯·认错认罚', sub:'认罪认罚相关材料已回写·待笔录确认', bar:['y','g','g'], badges:[3,1,0] },
     },
     msgs:[
       {type:'bot', html:'办案中心回写：<b>周枫自书</b>（E-009）。'},
-      {type:'bot', html:'⚠ 检测到冲突：周枫自书"<b>推搡</b>" vs 李江笔录"<b>扇打</b>"。'},
-      {type:'bot', html:'💡 智能分析：证人吴渔证言"看到周枫扇了李江一巴掌"印证<b>李江</b>陈述。'},
-      {type:'bot', html:'建议采信 <b>李江</b>：徒手扇打而非推搡。已派生任务：<b>对周枫制作询问笔录</b>，重点核实动作描述。'},
-      {type:'alert', focus:'tool'},
+      {type:'bot', html:'物证材料已回写：<b>烟灰缸照片、证据保全决定书、证据保全清单</b>入池。'},
+      {type:'bot', html:'现场监控及调取证据材料已关联到工具/经过节点。'},
     ]
   },
   { // 步骤 6：嫌疑人笔录（矛盾闭环）
     progress:'8/8', mainRel:{cls:'green',txt:'事实查明'},
     miss:'',
     factVer:'v4',
-    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。<span class="new">案发后周枫主动到案，对违法事实供认不讳，认错认罚。</span>',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突，周枫用烟灰缸殴打李江头部，致李江头皮挫裂伤。<span class="new">案发后周枫主动到案，对违法事实供认不讳，认错认罚。</span>',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
-      tool:    { state:'green',  status:'已证实', key:'徒手扇打李江左脸一次', sub:'矛盾闭环（周枫笔录承认）', bar:['g','g','g'], badges:[4,0,0] },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'头皮挫裂伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'green',  status:'已证实', key:'用烟灰缸殴打李江头部', sub:'矛盾闭环（周枫笔录承认）', bar:['g','g','g'], badges:[4,0,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
-      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
-      suspect: { state:'green',  status:'已证实', key:'周枫·男·32岁·初犯·认错认罚', sub:'笔录+自书+认罚已采集', bar:['g','g','g'], badges:[4,0,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·29岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'green',  status:'已证实', key:'周枫·男·31岁·初犯·认错认罚', sub:'笔录+自书+认罚已采集', bar:['g','g','g'], badges:[4,0,0] },
+      circumstance: { state:'green', status:'已证实', key:'初犯·主动到案·认错认罚', sub:'前科核验+认罪认罚材料+笔录确认', bar:['g','g','g'], badges:[4,0,0] },
     },
     msgs:[
       {type:'bot', html:'笔录 Agent 已回写：<b>周枫《询问笔录》</b>(E-011)。'},
-      {type:'bot', html:'周枫承认：<b>"我扇了李江左脸一巴掌"</b>，与自书"推搡"陈述不一致，以笔录为准。'},
-      {type:'bot', html:'矛盾「动作描述冲突」已自动闭环（周枫笔录与李江笔录、证人证言一致）。'},
+      {type:'bot', html:'周枫确认：<b>"我拿烟灰缸砸了李江头部"</b>，与李江笔录、证人证言和监控材料一致。'},
+      {type:'bot', html:'工具/经过节点已由笔录、证人证言、现场监控和烟灰缸保全材料闭环。'},
       {type:'bot', html:'周枫已签认罚书（E-010）。适用快办程序 · 已生成《行政处罚决定书》草本，请审核。'},
     ]
   },
@@ -1023,14 +1034,15 @@ const STEPS = [
     progress:'8/8', mainRel:{cls:'green',txt:'事实查明'},
     miss:'',
     factVer:'v5',
-    fact:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突，周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。案发后周枫主动到案，对违法事实供认不讳，认错认罚。<span class="new">依据《治安管理处罚法》第四十三条第一款，对周枫处以行政拘留五日。</span>',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突，周枫用烟灰缸殴打李江头部，致李江头皮挫裂伤。案发后周枫主动到案，对违法事实供认不讳，认错认罚。<span class="new">依据《治安管理处罚法》第四十三条第一款，对周枫处以行政拘留五日。</span>',
     nodes:{
-      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'], badges:[2,0,0] },
-      conseq:  { state:'green',  status:'已证实', key:'左脸软组织挫伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
-      tool:    { state:'green',  status:'已证实', key:'徒手扇打李江左脸一次', sub:'多源证据印证一致', bar:['g','g','g'], badges:[4,0,0] },
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'green',  status:'已证实', key:'头皮挫裂伤', sub:'医学结论·照片印证', bar:['g','g','g'], badges:[3,0,0] },
+      tool:    { state:'green',  status:'已证实', key:'用烟灰缸殴打李江头部', sub:'多源证据印证一致', bar:['g','g','g'], badges:[4,0,0] },
       witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'询问笔录已采集·与笔录一致', bar:['g','g','g'], badges:[2,0,0] },
-      victim:  { state:'green',  status:'已证实', key:'李江·男·31岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
-      suspect: { state:'green',  status:'已证实', key:'周枫·男·32岁·初犯·认错认罚', sub:'已送达·执行中', bar:['g','g','g'], badges:[3,0,0] },
+      victim:  { state:'green',  status:'已证实', key:'李江·男·29岁', sub:'身份核验·已询问', bar:['g','g','g'], badges:[3,0,0] },
+      suspect: { state:'green',  status:'已证实', key:'周枫·男·31岁·初犯·认错认罚', sub:'已送达·执行中', bar:['g','g','g'], badges:[3,0,0] },
+      circumstance: { state:'green', status:'已证实', key:'初犯·认错认罚', sub:'作为量罚情节纳入处罚草本', bar:['g','g','g'], badges:[4,0,0] },
     },
     msgs:[
       {type:'user', html:'审批通过。'},
@@ -1044,15 +1056,15 @@ const STEPS = [
 const MATERIALS = {
   '警情概述': {
     title:'接报案登记表', type:'文书', file:'assets/接报案登记表.pdf', owner:'李江', time:'2026-04-06 09:57', source:'电话报警',
-    elements:['时间','地点','人物','经过'], excerpt:'李江报警称被同事周枫殴打，地点为贵阳市南明区花果山小区2号楼113，脸部已经红肿。'
+    elements:['时间','地点','人物','经过'], excerpt:'李江报警称被同事周枫殴打，地点为诚高大厦6楼会议室，头部受伤。'
   },
   '伤情照片': {
     title:'受害人伤情照片', type:'照片', file:'assets/被害人伤情.JPG', owner:'李江', time:'2026-04-06 10:05', source:'固证精灵',
-    elements:['对象','后果'], excerpt:'李江左脸可见红肿，与后续诊断结论及询问笔录描述相互印证。'
+    elements:['对象','后果'], excerpt:'李江头部可见红肿及创口，与后续诊断结论及询问笔录描述相互印证。'
   },
   '受害人伤势照片': {
     title:'受害人伤情照片', type:'照片', file:'assets/被害人伤情.JPG', owner:'李江', time:'2026-04-06 10:05', source:'固证精灵',
-    elements:['对象','后果'], excerpt:'李江左脸可见红肿，与后续诊断结论及询问笔录描述相互印证。'
+    elements:['对象','后果'], excerpt:'李江头部可见红肿及创口，与后续诊断结论及询问笔录描述相互印证。'
   },
   '李江人像照片': {
     title:'受害人人像', type:'照片', file:'assets/被害人人像.JPG', owner:'李江', time:'2026-04-06 10:05', source:'固证精灵',
@@ -1066,44 +1078,105 @@ const MATERIALS = {
     title:'现场照片', type:'照片', file:'assets/现场照片.jpg', owner:'', time:'2026-04-06 10:05', source:'固证精灵',
     elements:['地点','经过'], excerpt:'会议室现场照片，会议桌与座椅布局可印证案发地点描述。'
   },
+  '现场勘验照片': {
+    title:'现场照片', type:'现场勘验', file:'assets/现场照片.jpg', owner:'', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['地点','工具/经过'], excerpt:'记录会议室空间、桌椅位置和现场环境，直接支撑案发地点及经过核验。'
+  },
+  '执法记录仪视频': {
+    title:'执法记录仪（剪辑版）', type:'视听资料', file:'assets/执法记录仪（剪辑版）.mp4', owner:'民警', time:'2026-04-06 10:06', source:'执法记录仪',
+    elements:['工具/经过','现场处置'], excerpt:'记录民警到场后的现场状态、双方位置和初步处置过程，作为经过类直接材料。'
+  },
+  '体表原始伤情记录表': {
+    title:'体表原始伤情记录表', type:'检查笔录', file:'assets/体表原始伤情记录表.pdf', owner:'李江', time:'2026-04-06 10:12', source:'现场检查',
+    elements:['后果','检查'], excerpt:'记录李江头部红肿部位、形态和初步检查情况，直接支撑伤害后果。'
+  },
+
+  '作案工具照片': {
+    title:'作案工具烟灰缸照片', type:'照片', file:'assets/作案工具烟灰缸.jpg', owner:'周枫', time:'2026-04-06 10:05', source:'固证精灵',
+    elements:['工具/经过','物证'], excerpt:'透明玻璃材质圆形烟灰缸照片，直接指向本案作案工具。'
+  },
+  '现场监控视频': {
+    title:'现场监控视频', type:'视听资料', file:'assets/现场监控.mp4', owner:'诚高公司', time:'2026-04-06 09:55', source:'调取证据',
+    elements:['时间','地点','工具/经过'], excerpt:'监控视频记录周枫用烟灰缸殴打李江的事实经过。'
+  },
+  '证据保全决定书': {
+    title:'证据保全决定书', type:'程序文书', file:'assets/证据保全决定书.pdf', owner:'周枫', time:'2026-05-06', source:'办案系统',
+    elements:['工具/经过','程序'], excerpt:'决定对证据保全清单中的烟灰缸进行扣押三十日。'
+  },
+  '证据保全清单': {
+    title:'证据保全清单', type:'程序清单', file:'assets/证据保全清单.pdf', owner:'', time:'2026-05-06', source:'办案系统',
+    elements:['工具/经过','物证'], excerpt:'登记烟灰缸一件，特征为透明玻璃材质的圆形烟灰缸。'
+  },
+  '调取证据通知书': {
+    title:'调取证据通知书', type:'程序文书', file:'assets/调取证据通知书.pdf', owner:'诚高公司', time:'2026-05-06', source:'办案系统',
+    elements:['工具/经过','程序'], excerpt:'通知诚高公司提供诚高大厦6楼会议室现场监控视频。'
+  },
+  '调取证据清单': {
+    title:'调取证据清单', type:'程序清单', file:'assets/调取证据清单.pdf', owner:'诚高公司', time:'2026-05-06', source:'办案系统',
+    elements:['工具/经过','程序'], excerpt:'清单载明调取现场监控视频，特征为记录周枫用烟灰缸殴打李江的事实经过。'
+  },
+  '医院伤情检查通知单': {
+    title:'医院伤情检查通知单', type:'伤情检查', file:'assets/医院伤情检查通知单.pdf', owner:'李江', time:'2026-04-06', source:'办案系统',
+    elements:['后果','程序'], excerpt:'通知李江前往医院检查并出具检查结果，作为伤情检查程序材料。'
+  },
+  '发还清单': {
+    title:'发还清单', type:'程序清单', file:'assets/发还清单.pdf', owner:'', time:'2026-05-06', source:'办案系统',
+    elements:['工具/经过','程序'], excerpt:'载明烟灰缸一件发还情况，闭合物证流转链条。'
+  },
+  '传唤证': {
+    title:'传唤证（行政）', type:'程序文书', file:'assets/传唤证（行政）.pdf', owner:'周枫', time:'2026-04-06 10:24', source:'办案系统',
+    elements:['嫌疑人','程序'], excerpt:'依法传唤周枫到案接受询问，支撑嫌疑人到案和程序合法性。'
+  },
+  '行政案件立案告知书': {
+    title:'行政案件立案告知书', type:'程序文书', file:'assets/行政案件立案告知书.pdf', owner:'李江 / 周枫', time:'2026-04-06 10:20', source:'办案系统',
+    elements:['程序','受害人','嫌疑人'], excerpt:'告知案件已立案及相关权利义务，作为非呈请类程序性文书纳入卷宗卡片。'
+  },
+  '行政处罚告知笔录': {
+    title:'行政处罚告知笔录', type:'程序笔录', file:'assets/行政处罚告知笔录.pdf', owner:'周枫', time:'2026-04-06 11:30', source:'办案系统',
+    elements:['嫌疑人','情节','程序'], excerpt:'告知拟作出行政处罚的事实、理由、依据及权利，周枫对拟处罚无异议。'
+  },
+  '伤情检查结论告知书': {
+    title:'诊断证明结论告知书', type:'程序告知', file:'assets/诊断证明结论告知书（受害人）.pdf', owner:'李江 / 周枫', time:'2026-04-09', source:'办案系统',
+    elements:['后果','程序'], excerpt:'向相关人员告知头皮挫裂伤结论，支撑伤情结论已履行告知程序。'
+  },
   '证人吴渔证言': {
     title:'证人证言', type:'视频/证言', file:'assets/证人证言.mp4', owner:'吴渔', time:'2026-04-06 09:55', source:'音视频录制',
-    elements:['时间','地点','工具/经过'], excerpt:'证人称9点55分左右在贵阳市南明区花果山小区2号楼113看到周枫打了李江，现场未使用工具。'
+    elements:['时间','地点','工具/经过'], excerpt:'证人称9点55分左右在诚高大厦6楼会议室看到周枫打了李江，现场使用烟灰缸。'
   },
   '李江询问笔录': {
     title:'受害人询问笔录', type:'笔录', file:'assets/受害人询问笔录.pdf', owner:'李江', time:'2026-04-06 10:32', source:'笔录 Agent',
-    elements:['时间','地点','受害人','工具/经过','后果'], excerpt:'李江陈述周枫先动手，徒手打其面部，自己没有还手，现场有同事吴渔看到。',
+    elements:['时间','地点','受害人','工具/经过','后果'], excerpt:'李江陈述周枫先动手，拿烟灰缸砸其头部，自己没有还手，现场有同事吴渔看到。',
     sevenElements:{
-      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
-      action:'周枫徒手扇打李江左脸一次', consequence:'李江左脸红肿，后续诊断为左脸软组织挫伤', witness:'吴渔在场目击并拉开双方'
+      time:'2026-04-06 09:55 左右', place:'诚高大厦6楼会议室', subject:'周枫，男，31岁，违法嫌疑人', object:'李江，男，29岁，受害人',
+      action:'周枫用烟灰缸殴打李江头部', consequence:'李江头部红肿，后续诊断为头皮挫裂伤', witness:'吴渔在场目击并拉开双方'
     }
   },
   '询问笔录': {
     title:'受害人询问笔录', type:'笔录', file:'assets/受害人询问笔录.pdf', owner:'李江', time:'2026-04-06 10:32', source:'笔录 Agent',
-    elements:['受害人','工具/经过','后果'], excerpt:'受害人李江陈述面部被打、右脸红肿疼痛，并要求依法处理周枫。',
+    elements:['受害人','工具/经过','后果'], excerpt:'受害人李江陈述头部被烟灰缸砸伤、头部红肿疼痛，并要求依法处理周枫。',
     sevenElements:{
-      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
-      action:'周枫徒手扇打李江左脸一次', consequence:'李江左脸红肿，后续诊断为左脸软组织挫伤', witness:'吴渔在场目击并拉开双方'
+      time:'2026-04-06 09:55 左右', place:'诚高大厦6楼会议室', subject:'周枫，男，31岁，违法嫌疑人', object:'李江，男，29岁，受害人',
+      action:'周枫用烟灰缸殴打李江头部', consequence:'李江头部红肿，后续诊断为头皮挫裂伤', witness:'吴渔在场目击并拉开双方'
     }
   },
-  '诊断证明': {
-    title:'医院伤情检查通知单', type:'诊断材料', file:'assets/医院伤情检查通知单.pdf', owner:'李江', time:'2026-04-06 11:11', source:'民警上传',
-    elements:['后果'], excerpt:'诊断结论为面部软组织挫伤，与伤情照片和受害人陈述一致。'
+  '伤情检查结论': {
+    title:'诊断证明结论告知书', type:'程序告知', file:'assets/诊断证明结论告知书（受害人）.pdf', owner:'李江 / 周枫', time:'2026-04-09', source:'办案系统',
+    elements:['后果','程序'], excerpt:'告知省人民医院诊断说明结论为头皮挫裂伤，并将作为认定人身伤害程度的依据。'
   },
   '周枫自书': {
     title:'嫌疑人自书材料', type:'自书材料', file:'assets/嫌疑人自书材料.pdf', owner:'周枫', time:'2026-04-06 11:20', source:'办案中心回写',
     elements:['嫌疑人','工具/经过','情节'], excerpt:'周枫自述与李江发生冲突，但动作描述与受害人笔录存在差异，触发矛盾核验。',
     sevenElements:{
-      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
-      action:'自述为推搡，与询问笔录中的扇打表述不一致', consequence:'承认发生肢体冲突，伤害后果表述不足', witness:'未主动提及吴渔证言，需结合证人证言核验'
+      time:'2026-04-06 09:55 左右', place:'诚高大厦6楼会议室', subject:'周枫，男，31岁，违法嫌疑人', object:'李江，男，29岁，受害人',
+      action:'自述拿起烟灰缸砸向李江头部', consequence:'承认造成对方头皮挫裂伤后果', witness:'结合吴渔证言和现场监控核验'
     }
   },
   '自书材料·周枫': {
     title:'嫌疑人自书材料', type:'自书材料', file:'assets/嫌疑人自书材料.pdf', owner:'周枫', time:'2026-04-06 11:20', source:'办案中心回写',
     elements:['嫌疑人','工具/经过','情节'], excerpt:'周枫自述与李江发生冲突，但动作描述与受害人笔录存在差异，触发矛盾核验。',
     sevenElements:{
-      time:'2026-04-06 09:55 左右', place:'贵阳市南明区花果山小区2号楼113', subject:'周枫，男，32岁，违法嫌疑人', object:'李江，男，31岁，受害人',
-      action:'自述为推搡，与询问笔录中的扇打表述不一致', consequence:'承认发生肢体冲突，伤害后果表述不足', witness:'未主动提及吴渔证言，需结合证人证言核验'
+      time:'2026-04-06 09:55 左右', place:'诚高大厦6楼会议室', subject:'周枫，男，31岁，违法嫌疑人', object:'李江，男，29岁，受害人',
+      action:'自述拿起烟灰缸砸向李江头部', consequence:'承认造成对方头皮挫裂伤后果', witness:'结合吴渔证言和现场监控核验'
     }
   },
   '身份核验回写': {
@@ -1124,7 +1197,23 @@ const MATERIALS = {
   },
   '地点GPS': {
     title:'现场照片', type:'照片', file:'assets/现场照片.jpg', owner:'', time:'2026-04-06 10:05', source:'固证精灵',
-    elements:['地点'], excerpt:'现场材料印证案发地点为贵阳市南明区花果山小区2号楼113。'
+    elements:['地点'], excerpt:'现场材料印证案发地点为诚高大厦6楼会议室。'
+  },
+  '前科核验回写': {
+    title:'前科核验回写', type:'核验材料', file:'assets/行政案件立案登记表.pdf', owner:'周枫', time:'2026-04-06 10:18', source:'公安系统',
+    elements:['前科','情节'], excerpt:'系统核验周枫身份及前科记录，结论为身份一致、初犯，用于辅助判断量罚情节。'
+  },
+  '快速办理权利义务告知书': {
+    title:'行政案件快速办理权利义务告知书', type:'程序告知', file:'assets/行政案件快速办理权利义务告知书.pdf', owner:'周枫', time:'2026-04-06 11:27', source:'办案中心回写',
+    elements:['程序','情节'], excerpt:'周枫已知悉快速办理相关权利义务，并确认适用快速办理程序。'
+  },
+  '认罪认罚材料': {
+    title:'认错认罚相关材料', type:'认罪认罚材料', file:'assets/行政处罚告知笔录.pdf', owner:'周枫', time:'2026-04-06 11:30', source:'办案中心回写',
+    elements:['嫌疑人','情节','程序'], excerpt:'周枫对违法事实表示认可，对拟处罚结果无异议，认错认罚情节可纳入处罚建议。'
+  },
+  '周枫询问笔录': {
+    title:'周枫询问笔录', type:'笔录', file:'assets/行政处罚告知笔录.pdf', owner:'周枫', time:'2026-04-06 11:30', source:'笔录 Agent',
+    elements:['嫌疑人','工具/经过','情节'], excerpt:'周枫确认案发后主动到案，承认用烟灰缸殴打李江头部，并表示认错认罚。'
   },
   '行政处罚决定书': {
     title:'行政处罚决定书', type:'文书', file:'assets/行政处罚决定书.pdf', owner:'周枫', time:'2026-04-06 14:21', source:'系统生成',
@@ -1225,20 +1314,23 @@ function openConflictCompareDrawer() {
 const STEP1_DETAIL = {
   conseq: {
     evidences: [
-      { name:'伤情照片(E-003)', tag:'照片', desc:'李江左脸明显红肿', bar:['g','g','g'] },
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江头部明显红肿', bar:['g','g','g'] },
+      { name:'体表原始伤情记录表', tag:'检查', desc:'记录头面部创口及红肿', bar:['g','g','g'] },
     ],
     gaps: [
-      { title:'缺：诊断证明', action:'待民警上传医学诊断证明（伤情阶段）' }
+      { title:'缺：医院伤情检查通知单', action:'待补齐医院检查及伤情结论告知材料' }
     ],
     conflicts: []
   },
   tool: {
     evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['y','g','g'] },
-      { name:'警情概述', tag:'警情', desc:'初步认定为肢体冲突', bar:['y','g','g'] },
+      { name:'警情概述', tag:'警情', desc:'接警记录指向烟灰缸殴打', bar:['y','g','g'] },
+      { name:'作案工具照片', tag:'工具', desc:'烟灰缸照片已采集', bar:['g','g','g'] },
+      { name:'现场勘验照片', tag:'现勘', desc:'会议室现场环境已固定', bar:['g','g','g'] },
+      { name:'现场监控视频', tag:'监控', desc:'记录烟灰缸殴打经过', bar:['y','g','g'] },
     ],
     gaps: [
-      { title:'缺：李江询问笔录', action:'笔录 Agent 安排对李江询问（笔录阶段）' }
+      { title:'缺：证据保全手续', action:'补齐烟灰缸证据保全决定书、清单及后续发还材料' }
     ],
     conflicts: []
   },
@@ -1247,7 +1339,7 @@ const STEP1_DETAIL = {
       { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
     ],
     gaps: [
-      { title:'缺：身份核验回写', action:'调用身份系统核验李江身份（程序核验阶段）' },
+      { title:'缺：李江身份核验', action:'调用身份系统核验李江身份（程序核验阶段）' },
       { title:'缺：李江询问笔录', action:'笔录 Agent 安排询问（笔录阶段）' }
     ],
     conflicts: []
@@ -1257,14 +1349,23 @@ const STEP1_DETAIL = {
       { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
     ],
     gaps: [
-      { title:'缺：身份核验回写', action:'调用身份/前科系统核验周枫（程序核验阶段）' },
+      { title:'缺：周枫身份核验', action:'调用身份系统核验周枫身份（程序核验阶段）' },
+      { title:'缺：传唤证', action:'补齐传唤到案程序文书' },
       { title:'缺：嫌疑人陈述', action:'获取周枫询问笔录与自书（笔录/办案中心阶段）' }
+    ],
+    conflicts: []
+  },
+  circumstance: {
+    evidences: [],
+    gaps: [
+      { title:'缺：前科核验回写', action:'调用身份/前科系统核验周枫前科情况（程序核验阶段）' },
+      { title:'缺：认罪认罚相关材料', action:'待办案中心回写自书、认罚及快速办理告知材料' }
     ],
     conflicts: []
   },
   witness: {
     evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫用烟灰缸打了李江头部"', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1272,7 +1373,7 @@ const STEP1_DETAIL = {
   time: {
     evidences: [
       { name:'警情时间戳', tag:'警情', desc:'2026-04-06 09:55', bar:['g','g','g'] },
-      { name:'地点GPS', tag:'地点', desc:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'] },
+      { name:'地点GPS', tag:'地点', desc:'诚高大厦6楼会议室', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1283,46 +1384,42 @@ const STEP1_DETAIL = {
 const NODE_DETAIL_DEFAULT = {
   tool: {
     evidences: [
-      { name:'警情概述', tag:'警情', desc:'初步认定为肢体冲突', bar:['y','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫扇打我左脸一次"', bar:['y','g','g'] },
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+      { name:'警情概述', tag:'警情', desc:'接警记录指向烟灰缸殴打', bar:['g','g','g'] },
+      { name:'作案工具照片', tag:'工具', desc:'透明玻璃烟灰缸已拍照固定', bar:['g','g','g'] },
+      { name:'现场勘验照片', tag:'现勘', desc:'案发会议室环境已固定', bar:['g','g','g'] },
+      { name:'现场监控视频', tag:'监控', desc:'记录烟灰缸殴打经过', bar:['g','g','g'] },
+      { name:'证据保全决定书', tag:'保全', desc:'对烟灰缸依法扣押三十日', bar:['g','g','g'] },
+      { name:'证据保全清单', tag:'清单', desc:'烟灰缸一件已登记', bar:['g','g','g'] },
+      { name:'调取证据通知书', tag:'调取', desc:'调取现场监控程序已启动', bar:['g','g','g'] },
+      { name:'调取证据清单', tag:'清单', desc:'现场监控视频已列明特征', bar:['g','g','g'] },
     ],
-    gaps: [
-      { title:'缺：嫌疑人侧陈述', action:'获取周枫自书材料（T-005·办案中心）' }
-    ],
-    conflicts: [
-      {
-        title:'⚡ 动作描述冲突',
-        sideA:{src:'笔录·李江', val:'扇打左脸'},
-        sideB:{src:'警情概述',  val:'推搡'},
-        investigation:'证人吴渔证言印证"扇了一巴掌"',
-        suggest:'建议采信 李江，理由：证人证言印证',
-        tasks:['对周枫再次询问，重点核实动作描述']
-      }
-    ]
+    gaps: [],
+    conflicts: []
   },
   conseq: {
     evidences: [
-      { name:'警情概述', tag:'警情', desc:'李江左脸有红肿', bar:['y','y','g'] },
-      { name:'伤情照片(E-003)', tag:'照片', desc:'左脸明显红肿', bar:['g','g','g'] },
-      { name:'诊断证明(E-007)', tag:'诊断', desc:'左脸软组织挫伤·医学结论', bar:['g','g','g'] },
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江头部明显红肿', bar:['g','g','g'] },
+      { name:'体表原始伤情记录表', tag:'检查', desc:'现场检查记录头面部创口及红肿', bar:['g','g','g'] },
+      { name:'医院伤情检查通知单(E-007)', tag:'检查', desc:'已通知医院检查伤情', bar:['g','g','g'] },
+      { name:'伤情检查结论告知书', tag:'告知', desc:'头皮挫裂伤结论已告知', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
   },
   victim: {
     evidences: [
-      { name:'身份核验回写', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
-      { name:'询问笔录(E-006)', tag:'笔录', desc:'当事人陈述', bar:['y','g','g'] },
-      { name:'伤情照片(E-003)', tag:'照片', desc:'伤情主体', bar:['g','g','g'] },
+      { name:'李江身份核验', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'被害人陈述周枫用烟灰缸殴打头部', bar:['y','g','g'] },
+      { name:'李江人像照片(E-002)', tag:'照片', desc:'受害人身份影像', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
   },
   suspect: {
     evidences: [
-      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
-      { name:'警情概述', tag:'警情', desc:'李江指认为施害人', bar:['y','g','g'] },
+      { name:'周枫身份核验', tag:'核验', desc:'周枫·身份证一致', bar:['g','g','g'] },
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'嫌疑人身份影像', bar:['g','g','g'] },
+      { name:'传唤证', tag:'程序', desc:'依法传唤周枫到案', bar:['g','g','g'] },
     ],
     gaps: [
       { title:'缺：嫌疑人陈述', action:'获取周枫询问笔录与自书' }
@@ -1331,7 +1428,7 @@ const NODE_DETAIL_DEFAULT = {
   },
   witness: {
     evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"扇了一巴掌"', bar:['y','g','g'] },
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"用烟灰缸打了李江头部"', bar:['y','g','g'] },
     ],
     gaps: [
       { title:'缺：吴渔询问笔录', action:'安排吴渔询问' }
@@ -1341,7 +1438,7 @@ const NODE_DETAIL_DEFAULT = {
   time: {
     evidences: [
       { name:'警情时间戳', tag:'警情', desc:'2026-04-06 09:55', bar:['g','g','g'] },
-      { name:'地点GPS', tag:'地点', desc:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'] },
+      { name:'地点GPS', tag:'地点', desc:'诚高大厦6楼会议室', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1353,7 +1450,8 @@ const STEP2_DETAIL = Object.assign({}, STEP1_DETAIL, {
   victim: {
     evidences: [
       { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
-      { name:'身份核验回写', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+      { name:'李江身份核验', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+      { name:'行政案件立案告知书', tag:'程序', desc:'已向受害人告知立案及权利义务', bar:['g','g','g'] },
     ],
     gaps: [
       { title:'缺：李江询问笔录', action:'笔录 Agent 安排询问（受害人笔录阶段）' }
@@ -1363,10 +1461,21 @@ const STEP2_DETAIL = Object.assign({}, STEP1_DETAIL, {
   suspect: {
     evidences: [
       { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
-      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+      { name:'周枫身份核验', tag:'核验', desc:'周枫·身份证一致', bar:['g','g','g'] },
+      { name:'传唤证', tag:'程序', desc:'已依法传唤周枫到案', bar:['g','g','g'] },
+      { name:'行政案件立案告知书', tag:'程序', desc:'已告知案件立案和相关权利义务', bar:['g','g','g'] },
     ],
     gaps: [
       { title:'缺：嫌疑人陈述', action:'获取周枫询问笔录与自书（嫌疑人笔录/办案中心阶段）' }
+    ],
+    conflicts: []
+  },
+  circumstance: {
+    evidences: [
+      { name:'前科核验回写', tag:'核验', desc:'周枫·初犯记录', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：认罪认罚相关材料', action:'待办案中心回写自书、认罚及快速办理告知材料' }
     ],
     conflicts: []
   },
@@ -1376,29 +1485,34 @@ const STEP2_DETAIL = Object.assign({}, STEP1_DETAIL, {
 const STEP3_DETAIL = {
   conseq: {
     evidences: [
-      { name:'伤情照片(E-003)', tag:'照片', desc:'李江左脸明显红肿', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫扇打我左脸"', bar:['y','g','g'] },
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江头部明显红肿', bar:['g','g','g'] },
+      { name:'体表原始伤情记录表', tag:'检查', desc:'记录头面部创口及红肿', bar:['g','g','g'] },
     ],
     gaps: [
-      { title:'缺：诊断证明', action:'待民警上传医学诊断证明（诊断证明阶段）' }
+      { title:'缺：医院伤情检查通知单', action:'待补齐医院检查及伤情结论告知材料' }
     ],
     conflicts: []
   },
   tool: {
     evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫徒手扇打我左脸一次"', bar:['y','g','g'] },
+      { name:'警情概述', tag:'警情', desc:'接警记录指向烟灰缸殴打', bar:['g','g','g'] },
+      { name:'作案工具照片', tag:'工具', desc:'透明玻璃烟灰缸已拍照固定', bar:['g','g','g'] },
+      { name:'现场勘验照片', tag:'现勘', desc:'案发会议室环境已固定', bar:['g','g','g'] },
+      { name:'现场监控视频', tag:'监控', desc:'记录烟灰缸殴打经过', bar:['g','g','g'] },
+      { name:'证据保全决定书', tag:'保全', desc:'对烟灰缸依法扣押三十日', bar:['g','g','g'] },
+      { name:'证据保全清单', tag:'清单', desc:'烟灰缸一件已登记', bar:['g','g','g'] },
+      { name:'调取证据通知书', tag:'调取', desc:'调取现场监控程序已启动', bar:['g','g','g'] },
+      { name:'调取证据清单', tag:'清单', desc:'现场监控视频已列明特征', bar:['g','g','g'] },
     ],
-    gaps: [
-      { title:'缺：嫌疑人侧陈述', action:'获取周枫自书材料（办案中心阶段）' }
-    ],
+    gaps: [],
     conflicts: []
   },
   victim: {
     evidences: [
       { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
-      { name:'身份核验回写', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'被害人陈述', bar:['y','g','g'] },
+      { name:'李江身份核验', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
+      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'被害人陈述周枫用烟灰缸殴打头部', bar:['y','g','g'] },
+      { name:'行政案件立案告知书', tag:'程序', desc:'立案告知已完成', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1406,16 +1520,26 @@ const STEP3_DETAIL = {
   suspect: {
     evidences: [
       { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
-      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
+      { name:'周枫身份核验', tag:'核验', desc:'周枫·身份证一致', bar:['g','g','g'] },
+      { name:'传唤证', tag:'程序', desc:'已依法传唤周枫到案', bar:['g','g','g'] },
     ],
     gaps: [
       { title:'缺：嫌疑人陈述', action:'获取周枫自书材料（办案中心阶段）' }
     ],
     conflicts: []
   },
+  circumstance: {
+    evidences: [
+      { name:'前科核验回写', tag:'核验', desc:'周枫·初犯记录', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：认罪认罚相关材料', action:'待办案中心回写自书、认罚及快速办理告知材料' }
+    ],
+    conflicts: []
+  },
   witness: {
     evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
+      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫用烟灰缸打了李江头部"', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1423,27 +1547,30 @@ const STEP3_DETAIL = {
   time: {
     evidences: [
       { name:'警情时间戳', tag:'警情', desc:'2026-04-06 09:55', bar:['g','g','g'] },
-      { name:'地点GPS', tag:'地点', desc:'贵阳市南明区花果山小区2号楼113', bar:['g','g','g'] },
+      { name:'地点GPS', tag:'地点', desc:'诚高大厦6楼会议室', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
   },
 };
 
-/* 步骤 4 · 诊断证明：在步骤 3 基础上，后果新增诊断证明，基本信息升级 */
+/* 步骤 4 · 伤情检查结论：在步骤 3 基础上，后果新增伤情检查结论，基本信息升级 */
 const STEP4_DETAIL = Object.assign({}, STEP3_DETAIL, {
+  circumstance: STEP3_DETAIL.circumstance,
   conseq: {
     evidences: [
-      { name:'伤情照片(E-003)', tag:'照片', desc:'李江左脸明显红肿', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫扇打我左脸"', bar:['g','g','g'] },
-      { name:'诊断证明(E-007)', tag:'诊断', desc:'左脸软组织挫伤·医学结论', bar:['g','g','g'] },
+      { name:'伤情照片(E-003)', tag:'照片', desc:'李江头部明显红肿', bar:['g','g','g'] },
+      { name:'体表原始伤情记录表', tag:'检查', desc:'现场检查记录头面部创口及红肿', bar:['g','g','g'] },
+      { name:'医院伤情检查通知单(E-007)', tag:'检查', desc:'已通知医院检查伤情', bar:['g','g','g'] },
+      { name:'伤情检查结论告知书', tag:'告知', desc:'头皮挫裂伤结论已告知', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
   },
+
 });
 
-/* 步骤 5 · 自书：嫌疑人自书"推搡"与李江笔录"扇打"冲突，证人佐证李江 */
+/* 步骤 5 · 自书：物证、监控和自书材料回写 */
 const STEP5_DETAIL = {
   conseq: STEP4_DETAIL.conseq,
   victim: STEP4_DETAIL.victim,
@@ -1451,49 +1578,14 @@ const STEP5_DETAIL = {
   time: STEP4_DETAIL.time,
   tool: {
     evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫徒手扇打我左脸一次"', bar:['y','g','g'] },
-      { name:'周枫自书(E-009)', tag:'自书', desc:'"我只是推搡了李江，没有扇巴掌"', bar:['y','g','g'] },
-    ],
-    gaps: [
-      { title:'缺：周枫询问笔录', action:'对周枫制作询问笔录，重点核实动作描述（已派生任务 T-008）' }
-    ],
-    conflicts: [
-      {
-        title:'⚡ 动作描述冲突',
-        sideA:{src:'询问笔录-李江', val:'徒手扇打左脸'},
-        sideB:{src:'自书材料·周枫', val:'仅推搡，未扇打'},
-        investigation:'证人吴渔证言"看到周枫扇了李江一巴掌"印证 李江 陈述',
-        suggest:'建议采信 李江：徒手扇打而非推搡',
-        tasks:['对周枫制作询问笔录，重点核实动作描述']
-      }
-    ]
-  },
-  suspect: {
-    evidences: [
-      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
-      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
-      { name:'周枫自书(E-009)', tag:'自书', desc:'对动作描述与受害人不一致', bar:['y','g','g'] },
-    ],
-    gaps: [
-      { title:'缺：周枫询问笔录', action:'对周枫制作询问笔录（任务 T-008）' }
-    ],
-    conflicts: []
-  },
-};
-
-/* 步骤 6 · 嫌疑人笔录：周枫笔录承认扇打，矛盾闭环 */
-const STEP6_DETAIL = {
-  conseq: STEP4_DETAIL.conseq,
-  victim: STEP4_DETAIL.victim,
-  witness: STEP4_DETAIL.witness,
-  time: STEP4_DETAIL.time,
-  tool: {
-    evidences: [
-      { name:'证人吴渔证言(E-005)', tag:'证人', desc:'"看到周枫扇了李江一巴掌"', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'"周枫徒手扇打我左脸一次"', bar:['g','g','g'] },
-      { name:'周枫询问笔录(E-011)', tag:'笔录', desc:'"我扇了李江左脸一巴掌"（以笔录为准）', bar:['g','g','g'] },
-      { name:'周枫自书(E-009)', tag:'自书', desc:'原称"推搡"，已被本人笔录否定', bar:['y','g','g'] },
+      { name:'警情概述', tag:'警情', desc:'接警记录指向烟灰缸殴打', bar:['g','g','g'] },
+      { name:'作案工具照片', tag:'工具', desc:'透明玻璃烟灰缸已拍照固定', bar:['g','g','g'] },
+      { name:'现场勘验照片', tag:'现勘', desc:'案发会议室环境已固定', bar:['g','g','g'] },
+      { name:'现场监控视频', tag:'监控', desc:'记录烟灰缸殴打经过', bar:['g','g','g'] },
+      { name:'证据保全决定书', tag:'保全', desc:'对烟灰缸依法扣押三十日', bar:['g','g','g'] },
+      { name:'证据保全清单', tag:'清单', desc:'烟灰缸一件已登记', bar:['g','g','g'] },
+      { name:'调取证据通知书', tag:'调取', desc:'调取现场监控程序已启动', bar:['g','g','g'] },
+      { name:'调取证据清单', tag:'清单', desc:'现场监控视频已列明特征', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1501,9 +1593,66 @@ const STEP6_DETAIL = {
   suspect: {
     evidences: [
       { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
-      { name:'身份核验回写', tag:'核验', desc:'周枫·身份证一致·无前科', bar:['g','g','g'] },
-      { name:'周枫询问笔录(E-011)', tag:'笔录', desc:'供认对李江实施扇打', bar:['g','g','g'] },
-      { name:'周枫自书(E-009)', tag:'自书', desc:'认错认罚书已签字（E-010）', bar:['g','g','g'] },
+      { name:'周枫身份核验', tag:'核验', desc:'周枫·身份证一致', bar:['g','g','g'] },
+      { name:'传唤证', tag:'程序', desc:'已依法传唤周枫到案', bar:['g','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'本人自述动作描述与受害人不一致', bar:['y','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：周枫询问笔录', action:'对周枫制作询问笔录（任务 T-008）' }
+    ],
+    conflicts: []
+  },
+  circumstance: {
+    evidences: [
+      { name:'前科核验回写', tag:'核验', desc:'周枫·初犯记录', bar:['g','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'主动表示愿意承担责任', bar:['y','g','g'] },
+      { name:'快速办理权利义务告知书(E-010)', tag:'告知', desc:'已知悉并同意适用快速办理程序', bar:['g','g','g'] },
+    ],
+    gaps: [
+      { title:'缺：周枫询问笔录确认', action:'对认错认罚、主动到案等情节制作笔录确认' }
+    ],
+    conflicts: []
+  },
+};
+
+/* 步骤 6 · 嫌疑人笔录：周枫笔录确认烟灰缸殴打经过 */
+const STEP6_DETAIL = {
+  conseq: STEP4_DETAIL.conseq,
+  victim: STEP4_DETAIL.victim,
+  witness: STEP4_DETAIL.witness,
+  time: STEP4_DETAIL.time,
+  tool: {
+    evidences: [
+      { name:'警情概述', tag:'警情', desc:'接警记录指向烟灰缸殴打', bar:['g','g','g'] },
+      { name:'作案工具照片', tag:'工具', desc:'透明玻璃烟灰缸已拍照固定', bar:['g','g','g'] },
+      { name:'现场勘验照片', tag:'现勘', desc:'案发会议室环境已固定', bar:['g','g','g'] },
+      { name:'现场监控视频', tag:'监控', desc:'记录烟灰缸殴打经过', bar:['g','g','g'] },
+      { name:'证据保全决定书', tag:'保全', desc:'对烟灰缸依法扣押三十日', bar:['g','g','g'] },
+      { name:'证据保全清单', tag:'清单', desc:'烟灰缸一件已登记', bar:['g','g','g'] },
+      { name:'调取证据通知书', tag:'调取', desc:'调取现场监控程序已启动', bar:['g','g','g'] },
+      { name:'调取证据清单', tag:'清单', desc:'现场监控视频已列明特征', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  suspect: {
+    evidences: [
+      { name:'嫌疑人人像照片(E-004)', tag:'照片', desc:'周枫正面像', bar:['g','g','g'] },
+      { name:'周枫身份核验', tag:'核验', desc:'周枫·身份证一致', bar:['g','g','g'] },
+      { name:'传唤证', tag:'程序', desc:'已依法传唤周枫到案', bar:['g','g','g'] },
+      { name:'周枫询问笔录(E-011)', tag:'笔录', desc:'供认用烟灰缸殴打李江头部', bar:['g','g','g'] },
+      { name:'周枫自书(E-009)', tag:'自书', desc:'本人自述及签字确认材料', bar:['g','g','g'] },
+      { name:'行政处罚告知笔录', tag:'程序', desc:'已告知拟处罚并记录无异议', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+  circumstance: {
+    evidences: [
+      { name:'前科核验回写', tag:'核验', desc:'周枫·初犯记录', bar:['g','g','g'] },
+      { name:'认罪认罚材料(E-010)', tag:'认罚', desc:'对违法事实和拟处罚无异议', bar:['g','g','g'] },
+      { name:'快速办理权利义务告知书', tag:'告知', desc:'适用快速办理程序材料齐备', bar:['g','g','g'] },
+      { name:'行政处罚告知笔录', tag:'程序', desc:'处罚告知阶段确认无异议', bar:['g','g','g'] },
     ],
     gaps: [],
     conflicts: []
@@ -1523,6 +1672,7 @@ const EDGES = [
   { from:'tool',   to:'conseq',  type:'cause',  label:'印证' },
   { from:'conseq', to:'victim',  type:'cause',  label:'属于' },
   { from:'suspect',to:'tool',    type:'cause',  label:'使用' },
+  { from:'circumstance', to:'suspect', type:'cause', label:'归属' },
 ];
 
 /* ===== 状态 ===== */
@@ -1568,7 +1718,7 @@ function renderNodes() {
       <div class="node-body">
         <div class="node-info">
           <div class="node-key">${d.key}</div>
-          <div class="node-sub">${d.sub}</div>
+          ${n.id === 'time' ? `<div class="node-sub">${d.sub}</div>` : ''}
           <div class="three-badges">
             ${badge('👍', d.badges[0])}${badge('❓', d.badges[1])}${badge('⚡', d.badges[2])}
           </div>
@@ -1954,18 +2104,15 @@ function updateEdgesForExpanded() {
   });
 }
 
-/* 当前节点矩形：优先读取 DOM 当前动画帧位置，避免连线与节点运动不同步。 */
+/* 当前节点矩形保持在 viewport 坐标系，避免 transform 缩放后二次换算。 */
 function currentRect(n) {
   const el = document.getElementById('node-' + n.id);
-  const vp = $('#viewport');
-  if (el && vp) {
-    const er = el.getBoundingClientRect();
-    const vr = vp.getBoundingClientRect();
+  if (el) {
     return {
-      x: (er.left - vr.left) / viewScale,
-      y: (er.top - vr.top) / viewScale,
-      w: er.width / viewScale,
-      h: er.height / viewScale
+      x: parseFloat(el.style.left) || n.x,
+      y: parseFloat(el.style.top) || n.y,
+      w: parseFloat(el.style.width) || n.w,
+      h: el.classList.contains('expanded') ? EXPANDED_H : n.h
     };
   }
   return { x: n.x, y: n.y, w: n.w, h: n.h };
@@ -1988,17 +2135,24 @@ function renderDetail(id, kind) {
   html += `
     <div class="detail-section" data-section="evi">
       <div class="detail-section-head">👍 已有证据 (${data.evidences.length}) <span class="toggle">${showEvi?'折叠 ▾':'展开 ▸'}</span></div>
-      ${showEvi ? data.evidences.map(ev => `
+      ${showEvi ? data.evidences.map(ev => {
+        const mat = materialForName(ev.name);
+        return `
         <div class="evidence-card">
           <div class="ev-head"><span class="ev-name">${materialTitle(ev.name)}</span><span class="ev-tag">${ev.tag}</span></div>
           <div class="ev-desc">→ ${ev.desc}</div>
+          ${mat ? `<div class="ev-meta">
+            <span><b>类型</b> ${escapeHtml(mat.type || '—')}</span><span><b>来源</b> ${escapeHtml(mat.source || '—')}</span>
+            <span><b>形成</b> ${escapeHtml(mat.time || '—')}</span><span><b>人员</b> ${escapeHtml(mat.owner || '—')}</span>
+            <span style="grid-column:1 / -1;"><b>摘要</b> ${escapeHtml(mat.excerpt || '—')}</span>
+          </div>` : ''}
           <div class="mini-bar">
             <span class="seg" style="background:${ev.bar[0]==='g'?'#16a34a':ev.bar[0]==='y'?'#d97706':'#b91c1c'}">真</span>
             <span class="seg" style="background:${ev.bar[2]==='g'?'#16a34a':ev.bar[2]==='y'?'#d97706':'#b91c1c'}">合</span>
             <span class="seg" style="background:${ev.bar[1]==='g'?'#16a34a':ev.bar[1]==='y'?'#d97706':'#b91c1c'}">关</span>
           </div>
         </div>
-      `).join('') : ''}
+      `}).join('') : ''}
       ${showEvi && data.evidences.length===0 ? '<div style="color:#9ca3af;font-size:11px;padding:6px;">暂无证据</div>' : ''}
     </div>
   `;
@@ -2070,15 +2224,15 @@ function appendMsg(m) {
   if (m.type === 'alert') {
     bubble = create('div', 'bubble alert');
     bubble.innerHTML = `
-      <div class="alert-title">⚠ <b>检测到关键字段冲突</b></div>
-      <div style="font-size:12px;color:#374151;">工具/经过 · 动作描述</div>
+      <div class="alert-title"><b>工具/经过已补强</b></div>
+      <div style="font-size:12px;color:#374151;">烟灰缸物证 · 现场监控 · 笔录印证</div>
       <div class="conflict-row">
-        <div class="conflict-col"><div class="src">笔录·李江</div><div class="val">扇打</div></div>
-        <div class="conflict-col"><div class="src">警情概述</div><div class="val">推搡</div></div>
+        <div class="conflict-col"><div class="src">笔录·李江</div><div class="val">烟灰缸砸伤头部</div></div>
+        <div class="conflict-col"><div class="src">现场监控</div><div class="val">记录殴打经过</div></div>
       </div>
-      <div class="investigation">💡 <b>智能分析：</b><br>证人吴渔证言印证"扇了一巴掌"<br>→ 建议采信李江</div>
-      <div class="tasks">已派生任务：对周枫再次询问</div>
-      <span class="view-conflict" onclick="jumpToConflict('${m.focus||'tool'}')">👁 查看冲突 →</span>
+      <div class="investigation"><b>智能分析：</b><br>证人吴渔证言、现场监控和证据保全清单共同印证工具/经过节点。</div>
+      <div class="tasks">关联材料：作案工具照片、证据保全决定书、调取证据清单</div>
+      <span class="view-conflict" onclick="expandNode('tool')">查看工具材料 →</span>
       <span class="ts">10:32</span>
     `;
   } else {
@@ -2156,6 +2310,7 @@ function switchStep(n) {
   } else $('#chipStage').textContent = 'S3 案件办理';
 
   // 切步骤前收起任何已展开的节点
+  if (expandedId) collapseNodeInline();
   expandedId = null;
   Object.values(NODES).forEach(m => { delete m._curX; delete m._curY; });
   renderNodes();
@@ -2163,7 +2318,7 @@ function switchStep(n) {
   renderMsgs();
 
   // Toast
-  const stepName = ['','警情接入','程序核验','笔录·矛盾','诊断证明','自书+认罚','处罚签发'][n];
+  const stepName = ['','警情接入','程序核验','受害人笔录','伤情检查结论','自书+认罚','嫌疑人笔录','处罚签发'][n];
   showToast('已切换到步骤 ' + n + '：' + stepName, 'success');
 
   // 步骤 3 自动滚动到矛盾消息
@@ -2272,9 +2427,9 @@ function switchTab(name) {
 const HIST = [
   { v:'v5', name:'处罚签发', time:'2026-04-06 14:21', text:'……依据《治安管理处罚法》第四十三条第一款，对周枫处以行政拘留五日。' },
   { v:'v4', name:'认罚回写', time:'2026-04-06 11:30', text:'……案发后周枫主动到案，对违法事实供认不讳，认错认罚。' },
-  { v:'v3', name:'诊断证明', time:'2026-04-06 11:11', text:'……周枫徒手扇打李江左脸一次，致李江左脸软组织挫伤。' },
-  { v:'v2', name:'笔录回写', time:'2026-04-06 10:32', text:'……周枫徒手扇打李江左脸一次。' },
-  { v:'v1', name:'警情接入', time:'2026-04-06 09:56', text:'2026-04-06 09:55，于贵阳市南明区花果山小区2号楼113，周枫因工作纠纷与李江发生冲突。' },
+  { v:'v3', name:'伤情检查结论', time:'2026-04-06 11:11', text:'……周枫用烟灰缸殴打李江头部，致李江头皮挫裂伤。' },
+  { v:'v2', name:'笔录回写', time:'2026-04-06 10:32', text:'……周枫用烟灰缸殴打李江头部。' },
+  { v:'v1', name:'警情接入', time:'2026-04-06 09:56', text:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突。' },
 ];
 function toggleHistory() {
   const d = $('#histDrawer');
@@ -2296,13 +2451,21 @@ function selectVer(i) {
 /* ===== 证据池 ===== */
 function renderEvi() {
   const data = [
-    { id:'E-001', name:'警情概述', tag:'警情', src:'固证精灵', desc:'初步认定为肢体冲突', bar:['y','g','g'] },
-    { id:'E-002', name:'李江身份核验', tag:'核验', src:'公安系统', desc:'身份一致·无前科', bar:['g','g','g'] },
-    { id:'E-003', name:'伤情照片', tag:'照片', src:'固证精灵', desc:'左脸明显红肿', bar:['g↑','g','g'] },
-    { id:'E-004', name:'周枫身份核验', tag:'核验', src:'公安系统', desc:'身份一致·无前科', bar:['g','g','g'] },
-    { id:'E-005', name:'证人吴渔证言', tag:'证人', src:'笔录Agent', desc:'看到扇了一巴掌', bar:['y','g','g'] },
-    { id:'E-006', name:'李江询问笔录', tag:'笔录', src:'笔录Agent', desc:'扇打左脸一次', bar:['y','g','g'] },
-    { id:'E-007', name:'诊断证明', tag:'诊断', src:'民警上传', desc:'左脸软组织挫伤', bar:['g','g','g'] },
+    { id:'E-001', name:'警情概述', tag:'警情', src:'接报警系统', desc:'报警称周枫用烟灰缸打伤李江头部', bar:['g','g','g'] },
+    { id:'E-002', name:'李江身份核验', tag:'核验', src:'公安系统', desc:'李江身份一致', bar:['g','g','g'] },
+    { id:'E-003', name:'伤情照片', tag:'照片', src:'固证精灵', desc:'头部明显红肿及创口', bar:['g↑','g','g'] },
+    { id:'E-004', name:'周枫身份核验', tag:'核验', src:'公安系统', desc:'周枫身份一致·初犯', bar:['g','g','g'] },
+    { id:'E-005', name:'证人吴渔证言', tag:'证人', src:'音视频录制', desc:'看到周枫用烟灰缸殴打李江', bar:['g','g','g'] },
+    { id:'E-006', name:'李江询问笔录', tag:'笔录', src:'笔录Agent', desc:'陈述被烟灰缸砸伤头部', bar:['g','g','g'] },
+    { id:'E-007', name:'医院伤情检查通知单', tag:'检查', src:'办案系统', desc:'通知医院检查伤情', bar:['g','g','g'] },
+    { id:'E-008', name:'作案工具照片', tag:'工具', src:'固证精灵', desc:'透明玻璃烟灰缸照片', bar:['g','g','g'] },
+    { id:'E-009', name:'现场监控视频', tag:'监控', src:'调取证据', desc:'记录烟灰缸殴打经过', bar:['g','g','g'] },
+    { id:'E-010', name:'证据保全决定书', tag:'保全', src:'办案系统', desc:'决定扣押烟灰缸三十日', bar:['g','g','g'] },
+    { id:'E-011', name:'证据保全清单', tag:'清单', src:'办案系统', desc:'烟灰缸一件已登记', bar:['g','g','g'] },
+    { id:'E-012', name:'周枫自书', tag:'自书', src:'办案中心回写', desc:'承认用烟灰缸砸向李江头部并认错认罚', bar:['g','g','g'] },
+    { id:'E-013', name:'认罪认罚材料', tag:'认罚', src:'办案中心回写', desc:'认错认罚·同意快速办理', bar:['g','g','g'] },
+    { id:'E-014', name:'周枫询问笔录', tag:'笔录', src:'笔录Agent', desc:'供认用烟灰缸殴打李江头部', bar:['g','g','g'] },
+    { id:'E-015', name:'发还清单', tag:'发还', src:'办案系统', desc:'烟灰缸物证流转闭合', bar:['g','g','g'] },
   ];
   $('#eviGrid').innerHTML = data.map(e => `
     <div class="list-card" onclick="openMaterialDrawerByName('${escapeAttr(e.name)}')" style="cursor:pointer;">
@@ -2325,10 +2488,12 @@ function tagSeg(label, c) {
 /* ===== 任务看板 ===== */
 function renderTask() {
   const data = [
-    { id:'T-X12', name:'对周枫再次询问', src:'矛盾调解', srcCls:'#fb923c', status:'待处理',
-      assoc:'工具/经过', reason:'动作描述冲突，建议采信李江', evis:'E-006 笔录 / E-001 警情' },
-    { id:'T-005', name:'获取周枫自书', src:'外部回写', srcCls:'#3b82f6', status:'进行中',
-      assoc:'嫌疑人', reason:'补充嫌疑人侧陈述', evis:'—' },
+    { id:'T-010', name:'补齐烟灰缸证据保全材料', src:'物证保全', srcCls:'#16a34a', status:'已完成',
+      assoc:'工具/经过', reason:'作案工具从口供材料更新为烟灰缸实物', evis:'E-008 作案工具照片 / E-010 证据保全决定书 / E-011 证据保全清单' },
+    { id:'T-011', name:'调取现场监控视频', src:'证据调取', srcCls:'#3b82f6', status:'已完成',
+      assoc:'工具/经过', reason:'用客观视听资料印证烟灰缸殴打经过', evis:'E-009 现场监控视频 / 调取证据通知书 / 调取证据清单' },
+    { id:'T-006', name:'核验情节材料', src:'程序核验', srcCls:'#16a34a', status:'已完成',
+      assoc:'情节', reason:'核验前科并确认认罪认罚材料齐备', evis:'前科核验 / 认罪认罚材料 / 周枫询问笔录' },
   ];
   $('#taskGrid').innerHTML = data.map(t => `
     <div class="list-card" style="border-left:4px solid ${t.srcCls}">
@@ -2336,7 +2501,7 @@ function renderTask() {
       <div class="meta">[${t.src}] · ${t.status}</div>
       <div class="desc">关联要素：${t.assoc}<br>触发原因：${t.reason}<br>关联证据：${t.evis}</div>
       <div class="three-tags">
-        <button class="tag-mini" style="background:#2563eb;cursor:pointer;" onclick="jumpToConflict('tool')">查看矛盾详情</button>
+        <button class="tag-mini" style="background:#2563eb;cursor:pointer;" onclick="expandNode('tool')">查看工具材料</button>
       </div>
     </div>
   `).join('');
@@ -2345,12 +2510,11 @@ function renderTask() {
 /* ===== 决策日志 ===== */
 function renderLog() {
   const logs = [
-    { time:'10:32:15', type:'三性升级', cls:'system', role:'system', text:'证据 E-003（伤情照片）真实性 🟡 → 🟢<br>原因：因证据 E-007（诊断证明）印证<br>关联要素：后果' },
-    { time:'10:32:20', type:'矛盾检出', cls:'system', role:'system', text:'工具/经过 动作描述冲突<br>冲突证据：E-006（笔录·李江"扇打左脸"）↔ 警情概述（"推搡"）<br>分级：强提示' },
-    { time:'10:32:21', type:'矛盾调解·建议', cls:'system', role:'system', text:'智能分析：扫描该要素证据 → E-005（证人吴渔）佐证<br>建议：采信 E-006（李江），理由：证人证言印证<br>派生任务：T-X12 对周枫再次询问' },
-    { time:'10:35:42', type:'矛盾调解·确认', cls:'human', role:'human', text:'民警赵武采纳系统建议<br>关联矛盾：工具/经过 动作描述冲突' },
-    { time:'10:18:00', type:'立案审批', cls:'human', role:'human', text:'民警赵武签发立案审批表' },
-    { time:'10:05:33', type:'程序核验', cls:'system', role:'system', text:'4 项核验自动通过：身份/前科/管辖/治安期限' },
+    { time:'09:57:05', type:'警情接入', cls:'system', role:'system', text:'报警内容更新：李江称周枫用烟灰缸打伤其头部，地点为诚高大厦6楼会议室' },
+    { time:'10:05:33', type:'证据采集', cls:'system', role:'system', text:'固证材料入池：受害人人像、嫌疑人人像、受害人伤势、作案工具烟灰缸、现场照片、现场监控' },
+    { time:'10:15:00', type:'伤情检查', cls:'system', role:'system', text:'体表原始伤情记录表记录头面部创口及红肿，并开具医院伤情检查通知单' },
+    { time:'11:30:08', type:'情节材料回写', cls:'system', role:'system', text:'情节节点补齐：前科核验无记录，周枫确认主动到案并认错认罚<br>关联证据：前科核验 / 认罪认罚材料 / 周枫询问笔录' },
+    { time:'2026-05-06', type:'物证保全', cls:'human', role:'human', text:'烟灰缸证据保全决定书、证据保全清单、调取证据通知书、调取证据清单及发还清单已纳入工具/经过节点' },
   ];
   $('#logList').innerHTML = logs.map(l => `
     <div class="log-line ${l.cls}">
