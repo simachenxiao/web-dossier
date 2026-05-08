@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务中心 - 执法办案智能体</title>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --blue: #3B82F6; --blue-dark: #2563EB; --blue-light: #EFF6FF;
+      --text-dark: #1C1917; --text-mid: #475569; --text-light: #64748B; --text-muted: #94A3B8;
+      --bg: #FAF9F6; --white: #FFFFFF; --border: #E7E5E4; --border-light: #E2E8F0;
+      --red: #DC2626; --red-bg: #FEF2F2; --red-border: #FECACA; --green: #16A34A;
+    }
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: var(--text-dark); }
+    /* TOP BAR */
+    .top-bar { display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 24px; background: var(--white); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+    .logo-icon { width: 32px; height: 32px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+    .logo-title { font-size: 17px; font-weight: 700; }
+    .top-divider { width: 1px; height: 20px; background: rgba(0,0,0,0.1); }
+    .top-subtitle { font-size: 13px; color: var(--text-muted); }
+    .top-spacer { flex: 1; }
+    .user-tag { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; background: #F8F7F5; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--text-mid); }
+    .logout-btn { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; font-size: 12px; color: var(--red); cursor: pointer; }
+    .logout-btn:hover { background: #fee2e2; }
+    /* CONTENT */
+    .content { display: flex; flex: 1; overflow: hidden; }
+    /* LEFT PANEL */
+    .left-panel { width: 400px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--white); border-right: 1px solid rgba(0,0,0,0.05); }
+    .chat-header { display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 20px; border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+    .chat-avatar { width: 32px; height: 32px; background: rgba(59,130,246,0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; }
+    .chat-title-group { flex: 1; }
+    .chat-title { font-size: 15px; font-weight: 600; }
+    .chat-status { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+    .status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+    .status-text { font-size: 11px; color: var(--green); }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; background: var(--bg); }
+    .msg-ai { display: flex; gap: 8px; align-items: flex-start; }
+    .msg-user { display: flex; gap: 8px; justify-content: flex-end; }
+    .msg-avatar { width: 32px; height: 32px; background: rgba(59,130,246,0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; }
+    .bubble-ai { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 13px; line-height: 1.6; max-width: 320px; white-space: pre-line; }
+    .bubble-user { background: var(--blue); border-radius: 12px; padding: 12px; font-size: 13px; color: white; line-height: 1.6; max-width: 280px; }
+    .chat-input-area { display: flex; align-items: center; gap: 8px; height: 80px; padding: 12px 16px; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+    .input-box { flex: 1; display: flex; align-items: center; gap: 8px; height: 100%; padding: 0 10px; background: #F8F7F5; border: 1px solid var(--border); border-radius: 12px; }
+    .attach-btn { width: 28px; height: 28px; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-light); flex-shrink: 0; }
+    .chat-input { flex: 1; border: none; background: transparent; font-size: 13px; color: var(--text-dark); outline: none; font-family: inherit; }
+    .chat-input::placeholder { color: var(--text-muted); }
+    .send-btn { width: 40px; height: 40px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; flex-shrink: 0; border: none; }
+    .send-btn:hover { background: var(--blue-dark); }
+    /* RIGHT PANEL */
+    .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .func-modules { background: var(--white); padding: 14px 20px 16px; border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+    .func-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .func-title { font-size: 14px; font-weight: 600; }
+    .func-spacer { flex: 1; }
+    .func-subtitle { font-size: 12px; color: var(--text-muted); }
+    .func-cards { display: flex; gap: 16px; }
+    .func-card { flex: 1; display: flex; align-items: center; gap: 12px; height: 100px; padding: 16px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; }
+    .func-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .func-card-icon { width: 44px; height: 44px; background: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .func-card-text { flex: 1; min-width: 0; }
+    .func-card-title { font-size: 14px; font-weight: 600; }
+    .func-card-desc { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+    /* FILTER BAR */
+    .filter-bar { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 20px; background: var(--white); border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+    .filter-label { font-size: 13px; color: var(--text-light); white-space: nowrap; }
+    .search-box { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; width: 280px; background: #F8F7F5; border: 1px solid #E2E8F0; border-radius: 8px; color: var(--text-muted); flex-shrink: 0; }
+    .search-input { border: none; background: transparent; font-size: 12px; color: var(--text-dark); outline: none; font-family: inherit; flex: 1; min-width: 0; }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-btn { height: 34px; padding: 0 16px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .search-btn:hover { background: var(--blue-dark); }
+    .filter-spacer { flex: 1; }
+    .task-count-tag { display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; background: #F1F5F9; border-radius: 6px; font-size: 11px; color: var(--text-light); white-space: nowrap; }
+    /* TASK LIST */
+    .task-list { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .task-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .task-title-text { font-size: 15px; font-weight: 600; }
+    .task-title-sp { flex: 1; }
+    .task-badge { display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 10px; background: #EFF6FF; border-radius: 11px; font-size: 11px; color: var(--blue); }
+    .task-badge-dot { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; }
+    /* CASE GROUP */
+    .case-group { background: var(--white); border: 1px solid #BFDBFE; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
+    .group-header { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 16px; background: linear-gradient(180deg, #EFF6FF 0%, #F8FAFF 100%); }
+    .group-icon-bg { width: 24px; height: 24px; background: rgba(234,88,12,0.08); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #EA580C; flex-shrink: 0; }
+    .group-case-num { font-size: 13px; font-weight: 600; color: #1E40AF; }
+    .group-time { font-size: 12px; color: var(--blue); white-space: nowrap; }
+    .group-spacer { flex: 1; }
+    .group-badge { height: 22px; padding: 0 10px; background: rgba(234,88,12,0.06); border-radius: 11px; font-size: 11px; color: #EA580C; display: flex; align-items: center; white-space: nowrap; }
+    .task-cards-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 12px; }
+    .task-card { background: var(--white); border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s; }
+    .task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tc-row1 { display: flex; align-items: center; gap: 8px; }
+    .tc-icon { color: var(--blue); flex-shrink: 0; }
+    .tc-title { flex: 1; font-size: 14px; font-weight: 600; min-width: 0; }
+    .tc-badge { height: 20px; padding: 0 8px; background: #F1F5F9; border-radius: 10px; font-size: 11px; color: var(--text-mid); display: flex; align-items: center; white-space: nowrap; }
+    .tc-desc { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+    .tc-footer { display: flex; align-items: center; gap: 6px; }
+    .tc-time { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-muted); }
+    .tc-spacer { flex: 1; }
+    .tc-action-btn { height: 26px; padding: 0 10px; background: var(--blue); color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .tc-action-btn:hover { background: var(--blue-dark); }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="logo-icon"><i data-lucide="shield" style="width:18px;height:18px;"></i></div>
+    <span class="logo-title">执法办案智能体</span>
+    <div class="top-divider"></div>
+    <span class="top-subtitle">任务中心</span>
+    <div class="top-spacer"></div>
+    <div class="user-tag">
+      <i data-lucide="user" style="width:14px;height:14px;"></i>
+      <span>警员 张明 / 330102</span>
+    </div>
+    <div class="logout-btn" onclick="alert('退出登录')">
+      <i data-lucide="log-out" style="width:14px;height:14px;"></i>
+      <span>退出</span>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- LEFT: AI CHAT -->
+    <div class="left-panel">
+      <div class="chat-header">
+        <div class="chat-avatar"><i data-lucide="bot" style="width:16px;height:16px;"></i></div>
+        <div class="chat-title-group">
+          <div class="chat-title">小威智能体</div>
+          <div class="chat-status">
+            <div class="status-dot"></div>
+            <span class="status-text">在线</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg-ai">
+          <div class="msg-avatar"><i data-lucide="bot" style="width:16px;height:16px;"></i></div>
+          <div class="bubble-ai">您好！我是您的智能助手，可以帮您处理案件任务。请问有什么需要帮忙的吗？</div>
+        </div>
+        <div class="msg-user">
+          <div class="bubble-user">帮我查看今日待处理的任务列表</div>
+        </div>
+        <div class="msg-ai">
+          <div class="msg-avatar"><i data-lucide="bot" style="width:16px;height:16px;"></i></div>
+          <div class="bubble-ai">为您找到今日待处理任务共 3 项：
+• 制作被害人询问笔录
+• 开具传唤证
+• 行政立案审批
+
+请点击右侧任务卡片进行处理。</div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-box">
+          <div class="attach-btn"><i data-lucide="paperclip" style="width:14px;height:14px;"></i></div>
+          <input class="chat-input" id="chatInput" type="text" placeholder="请输入任务指令..." />
+        </div>
+        <button class="send-btn" id="sendBtn"><i data-lucide="send" style="width:18px;height:18px;"></i></button>
+      </div>
+    </div>
+
+    <!-- RIGHT: TASK PANEL -->
+    <div class="right-panel">
+
+      <!-- Function Modules -->
+      <div class="func-modules">
+        <div class="func-title-row">
+          <i data-lucide="layout-grid" style="width:16px;height:16px;color:#3B82F6;"></i>
+          <span class="func-title">功能入口</span>
+          <div class="func-spacer"></div>
+          <span class="func-subtitle">快速进入常用业务模块</span>
+        </div>
+        <div class="func-cards">
+          <div class="func-card" onclick="alert('固证精灵')">
+            <div class="func-card-icon"><i data-lucide="camera" style="width:22px;height:22px;color:#2563EB;"></i></div>
+            <div class="func-card-text">
+              <div class="func-card-title">固证精灵</div>
+              <div class="func-card-desc">现场证据采集、上传、固证</div>
+            </div>
+          </div>
+          <div class="func-card" onclick="alert('AI智办')">
+            <div class="func-card-icon"><i data-lucide="bot" style="width:22px;height:22px;color:#6D28D9;"></i></div>
+            <div class="func-card-text">
+              <div class="func-card-title">AI智办</div>
+              <div class="func-card-desc">智能立案、审批、案件办理</div>
+            </div>
+          </div>
+          <div class="func-card" onclick="alert('智能笔录')">
+            <div class="func-card-icon"><i data-lucide="file-text" style="width:22px;height:22px;color:#0E7490;"></i></div>
+            <div class="func-card-text">
+              <div class="func-card-title">智能笔录</div>
+              <div class="func-card-desc">AI辅助制作询问/讯问笔录</div>
+            </div>
+          </div>
+          <div class="func-card" onclick="alert('AI智审')">
+            <div class="func-card-icon"><i data-lucide="sparkles" style="width:22px;height:22px;color:#15803D;"></i></div>
+            <div class="func-card-text">
+              <div class="func-card-title">AI智审</div>
+              <div class="func-card-desc">智能案件审核、法律适用</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <span class="filter-label">警号检索：</span>
+        <div class="search-box">
+          <i data-lucide="search" style="width:14px;height:14px;flex-shrink:0;"></i>
+          <input class="search-input" id="searchInput" type="text" placeholder="请输入警情编号，如 J330102..." />
+        </div>
+        <button class="search-btn" onclick="doSearch()">检索</button>
+        <div class="filter-spacer"></div>
+        <div class="task-count-tag">
+          <i data-lucide="list-todo" style="width:12px;height:12px;"></i>
+          <span id="taskCountText">共 9 项待处理任务</span>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <div class="task-list" id="taskList">
+        <div class="task-title-row">
+          <i data-lucide="list-todo" style="width:16px;height:16px;color:#3B82F6;"></i>
+          <span class="task-title-text">我的任务</span>
+          <div class="task-title-sp"></div>
+          <div class="task-badge"><div class="task-badge-dot"></div><span>9 项待处理</span></div>
+        </div>
+        <!-- 动态渲染 -->
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const taskData = [
+      {
+        id: 'J330102640000202604030001',
+        time: '报警时间：2026-04-03 14:30:00',
+        count: 3,
+        cards: [
+          { title: '制作被害人询问笔录', desc: '制作张某的询问笔录', status: '待处理', deadline: '2026-04-03 15:00' },
+          { title: '开具传唤证', desc: '开具对嫌疑人李某的传唤证', status: '待处理', deadline: '2026-04-03 16:00' },
+          { title: '采集现场照片存证', desc: '对案发现场进行全景及细节照片采集', status: '待处理', deadline: '2026-04-03 17:00' },
+        ]
+      },
+      {
+        id: 'J330102640000202604020002',
+        time: '发生时间：2026-04-02 09:15:00',
+        count: 3,
+        cards: [
+          { title: '行政立案审批', desc: '完成行政立案审批流程', status: '待处理', deadline: '2026-04-02 10:00' },
+          { title: '调取监控视频录像', desc: '调取案发时间段内周边监控录像', status: '待处理', deadline: '2026-04-02 11:00' },
+          { title: '制作受案登记表', desc: '填写并提交受案登记表', status: '待处理', deadline: '2026-04-02 13:00' },
+        ]
+      },
+      {
+        id: 'J330102640000202604010003',
+        time: '发生时间：2026-04-01 16:45:00',
+        count: 3,
+        cards: [
+          { title: '制作违法行为告知书', desc: '依法制作违法行为告知书并送达当事人', status: '待处理', deadline: '2026-04-01 18:00' },
+          { title: '开具行政拘留决定书', desc: '对违法当事人开具行政拘留决定书', status: '待处理', deadline: '2026-04-01 19:30' },
+          { title: '上传扣押物品清单', desc: '整理并上传本案扣押物品清单至系统', status: '待处理', deadline: '2026-04-01 20:00' },
+        ]
+      }
+    ];
+
+    function renderTasks(data) {
+      const list = document.getElementById('taskList');
+      const titleRow = list.querySelector('.task-title-row');
+      list.innerHTML = '';
+      list.appendChild(titleRow);
+      data.forEach(group => {
+        const g = document.createElement('div');
+        g.className = 'case-group';
+        g.innerHTML = `
+          <div class="group-header">
+            <div class="group-icon-bg"><i data-lucide="siren" style="width:13px;height:13px;"></i></div>
+            <span class="group-case-num">警情编号：${group.id}</span>
+            <span class="group-time">${group.time}</span>
+            <div class="group-spacer"></div>
+            <div class="group-badge">${group.count} 个任务</div>
+          </div>
+          <div class="task-cards-row">
+            ${group.cards.map(c => `
+              <div class="task-card">
+                <div class="tc-row1">
+                  <i data-lucide="file-text" style="width:16px;height:16px;color:#3B82F6;" class="tc-icon"></i>
+                  <span class="tc-title">${c.title}</span>
+                  <div class="tc-badge">${c.status}</div>
+                </div>
+                <div class="tc-desc">${c.desc}</div>
+                <div class="tc-footer">
+                  <div class="tc-time">
+                    <i data-lucide="timer" style="width:12px;height:12px;"></i>
+                    <span>${c.deadline}</span>
+                  </div>
+                  <div class="tc-spacer"></div>
+                  <button class="tc-action-btn" onclick="handleTask('${c.title}')">立即处理</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        list.appendChild(g);
+      });
+      lucide.createIcons();
+    }
+
+    function doSearch() {
+      const q = document.getElementById('searchInput').value.trim();
+      if (!q) { renderTasks(taskData); return; }
+      const filtered = taskData.filter(g => g.id.toLowerCase().includes(q.toLowerCase()));
+      renderTasks(filtered);
+      const total = filtered.reduce((s, g) => s + g.cards.length, 0);
+      document.getElementById('taskCountText').textContent = `共 ${total} 项待处理任务`;
+    }
+
+    document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+    function handleTask(title) {
+      addAiMsg(`正在为您处理任务：【${title}】，请稍候...`);
+    }
+
+    const aiReplies = [
+      '好的，我来帮您处理这个任务。',
+      '已收到您的指令，正在分析相关案件信息...',
+      '请稍候，我正在为您调取相关数据。',
+      '已为您找到相关记录，请查看右侧任务列表。',
+      '任务已更新，请按照流程逐步完成。',
+    ];
+
+    function addUserMsg(text) {
+      const box = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'msg-user';
+      div.innerHTML = `<div class="bubble-user">${text}</div>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function addAiMsg(text) {
+      const box = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'msg-ai';
+      div.innerHTML = `<div class="msg-avatar"><i data-lucide="bot" style="width:16px;height:16px;"></i></div><div class="bubble-ai">${text}</div>`;
+      box.appendChild(div);
+      lucide.createIcons();
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      addUserMsg(text);
+      input.value = '';
+      setTimeout(() => {
+        const reply = aiReplies[Math.floor(Math.random() * aiReplies.length)];
+        addAiMsg(reply);
+      }, 600);
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+    renderTasks(taskData);
+  </script>
+</body>
+</html>

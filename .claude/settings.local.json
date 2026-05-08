@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node *)",
+      "Skill(playwright-cli)",
+      "Bash(python *)",
+      "Bash(playwright-cli reload *)",
+      "Bash(playwright-cli run-code *)",
+      "Bash(playwright-cli open *)",
+      "Bash(playwright *)",
+      "Bash(git init *)",
+      "Bash(gh auth *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(git config *)",
+      "Bash(python3 *)",
+      "Bash(py --version)",
+      "Bash(npx playwright *)",
+      "Bash(git *)"
+    ]
+  }
+}

@@ -37,19 +37,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .chip.done { background: #dcfce7; color: #15803d; }
 .chip.active { background: #2563eb; color: #fff; font-weight: 600; }
-.progress-ring {
-  width: 44px; height: 44px; position: relative;
-}
-.progress-ring svg { transform: rotate(-90deg); }
-.progress-ring .num {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; color: #111827;
-}
-.miss-pill {
-  background: #fee2e2; color: #b91c1c; font-size: 11px; padding: 4px 10px;
-  border-radius: 12px; font-weight: 500;
-}
-.miss-pill.ok { background: #dcfce7; color: #15803d; }
 .main-rel {
   font-size: 12px; padding: 4px 10px; border-radius: 12px;
   background: #fee2e2; color: #b91c1c; font-weight: 500;
@@ -102,6 +89,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .msg.user .bubble { background: #2563eb; color: #fff; }
 .msg.bot .bubble { background: #fff; border: 1px solid #e5e7eb; }
 .bubble b { color: #111827; }
+.bubble .msg-link { color: #2563eb; font-weight: 700; cursor: pointer; }
+.bubble .msg-link:hover { text-decoration: underline; }
+.bubble .confirm-demo {
+  display: inline-block; margin-left: 6px; padding: 2px 10px; border-radius: 999px;
+  background: #2563eb; color: #fff; font-size: 12px; font-weight: 700;
+}
 .bubble .ts { display: block; font-size: 10px; color: #9ca3af; margin-top: 4px; }
 .msg.user .bubble .ts { color: rgba(255,255,255,.7); }
 
@@ -446,7 +439,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 10px; padding: 1px 6px; border-radius: 6px;
   background: #e0e7ff; color: #3730a3;
 }
-.evidence-card .ev-desc { color: #4b5563; line-height: 1.5; margin-bottom: 6px; }
 .evidence-card .ev-meta {
   display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px;
   margin: 6px 0; padding: 6px 8px; border-radius: 6px;
@@ -717,11 +709,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="stepper-pills" id="stepperPills">
         <div class="step-pill active" data-step="1">① 警情接入</div>
         <div class="step-pill" data-step="2">② 程序核验</div>
-        <div class="step-pill" data-step="3">③ 受害人笔录</div>
-        <div class="step-pill" data-step="4">④ 伤情检查</div>
-        <div class="step-pill" data-step="5">⑤ 自书</div>
-        <div class="step-pill" data-step="6">⑥ 嫌疑人笔录</div>
-        <div class="step-pill" data-step="7">⑦ 处罚签发</div>
+        <div class="step-pill" data-step="3">③ 开具证据保全手续</div>
+        <div class="step-pill" data-step="4">④ 受害人笔录</div>
+        <div class="step-pill" data-step="5">⑤ 伤情检查</div>
+        <div class="step-pill" data-step="6">⑥ 自书</div>
+        <div class="step-pill" data-step="7">⑦ 嫌疑人笔录</div>
+        <div class="step-pill" data-step="8">⑧ 处罚签发</div>
       </div>
     </div>
     <div class="input-area">
@@ -755,14 +748,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
             <div class="chip active" id="chipStage">S3 案件办理</div>
             <div class="chip">END 结案</div>
           </div>
-          <div class="progress-ring">
-            <svg width="44" height="44" viewBox="0 0 44 44">
-              <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" stroke-width="3"/>
-              <circle id="progArc" cx="22" cy="22" r="18" fill="none" stroke="#eab308" stroke-width="3" stroke-dasharray="113.1" stroke-dashoffset="42.4" stroke-linecap="round"/>
-            </svg>
-            <div class="num" id="progNum">5/8</div>
-          </div>
-          <div class="miss-pill" id="missPill">缺·自书 缺·伤情检查 缺·调解</div>
           <div class="spacer"></div>
           <div class="main-rel yellow" id="mainRel">补强推进中</div>
         </div>
@@ -939,13 +924,31 @@ const STEPS = [
       circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
     },
     msgs:[
-      {type:'bot', html:'已完成 4 项程序性核验：<b>身份/前科/管辖/治安期限</b>，全部通过。'},
-      {type:'bot', html:'已生成 <b>立案审批表</b>，请审核签发。'},
-      {type:'user', html:'已审核通过，立案签发。'},
-      {type:'bot', html:'立案完成，进入案件办理阶段（S3）。'},
+      {type:'bot', html:'小威已完成 4 项程序性核验：<b>身份/前科/管辖/治安期限</b>，全部通过。'},
+      {type:'bot', html:'小威已生成 <span class="msg-link" onclick="openOriginalFile(\'assets/行政案件立案登记表.pdf\');event.stopPropagation();">《行政立案登记表》</span><span class="msg-link" onclick="openOriginalFile(\'assets/行政案件立案告知书.pdf\');event.stopPropagation();">《行政立案告知书》</span><span class="msg-link" onclick="openOriginalFile(\'assets/接报审批表.pdf\');event.stopPropagation();">《接报审批表》</span>，请审核确认<br><span class="confirm-demo">确认</span>'},
+      {type:'user', html:'已审核确认。'},
+      {type:'bot', html:'立案审批已完成，进入案件办理阶段'},
     ]
   },
-  { // 步骤 3：笔录·矛盾（核心场景）
+  { // 步骤 3：开具证据保全手续
+    progress:'5/8', mainRel:{cls:'yellow',txt:'补强推进中'},
+    miss:'缺·自书 缺·伤情检查 缺·询问笔录',
+    factVer:'v1',
+    fact:'2026-04-06 09:55，于诚高大厦6楼会议室，周枫因工作纠纷与李江发生冲突。',
+    nodes:{
+      time:    { state:'green',  status:'已证实', key:'2026-04-06 09:55', sub:'诚高大厦6楼会议室', bar:['g','g','g'], badges:[2,0,0] },
+      conseq:  { state:'yellow', status:'补强中', key:'头部红肿', sub:'伤情照片初判', bar:['y','y','g'], badges:[2,1,0] },
+      tool:    { state:'green',  status:'已证实', key:'烟灰缸证据保全手续', sub:'决定书+清单+审批表', bar:['g','g','g'], badges:[6,0,0] },
+      witness: { state:'green',  status:'已证实', key:'吴渔·女·31岁', sub:'现场证人证言已采集', bar:['g','g','g'], badges:[1,0,0] },
+      victim:  { state:'yellow', status:'补强中', key:'李江·男·29岁', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[3,1,0] },
+      suspect: { state:'yellow', status:'补强中', key:'周枫·男·31岁·初犯', sub:'身份核验通过·待询问', bar:['g','g','g'], badges:[4,1,0] },
+      circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
+    },
+    msgs:[
+      {type:'bot', html:'根据工具的证据材料缺失，小威已经帮助你自动生成<span class="msg-link" onclick="openOriginalFile(\'assets/证据保全决定书.pdf\');event.stopPropagation();">《证据保全决定书》</span><span class="msg-link" onclick="openOriginalFile(\'assets/证据保全清单.pdf\');event.stopPropagation();">《证据保全清单》</span><span class="msg-link" onclick="openOriginalFile(\'assets/证据保全审批表.pdf\');event.stopPropagation();">《证据保全审批表》</span>'},
+    ]
+  },
+  { // 步骤 4：笔录·矛盾（核心场景）
     progress:'5/8', mainRel:{cls:'yellow',txt:'补强推进中'},
     miss:'缺·自书 缺·伤情检查',
     factVer:'v2',
@@ -960,11 +963,12 @@ const STEPS = [
       circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
     },
     msgs:[
-      {type:'bot', html:'笔录 Agent 已回写：<b>李江《询问笔录》</b>(E-006)。'},
+      {type:'bot', html:'根据受害人证据材料缺失，小威帮你创建了<span class="msg-link">李江《询问笔录》</span>的任务。'},
+      {type:'bot', html:'小威已笔录 Agent信息：<b>李江《询问笔录》</b>。'},
       {type:'bot', html:'李江笔录已入池，描述与证人证言一致：<b>用烟灰缸殴打头部</b>。'},
     ]
   },
-  { // 步骤 4：伤情检查结论
+  { // 步骤 5：伤情检查结论
     progress:'6/8', mainRel:{cls:'yellow',txt:'补强推进中'},
     miss:'缺·自书',
     factVer:'v3',
@@ -979,12 +983,13 @@ const STEPS = [
       circumstance: { state:'yellow', status:'补强中', key:'初犯', sub:'前科核验通过·认罪认罚材料待采集', bar:['g','g','g'], badges:[1,1,0] },
     },
     msgs:[
-      {type:'bot', html:'伤情检查结论已回写 · <b>头皮挫裂伤</b>（E-007）入池。'},
+      {type:'bot', html:'根据后果证据材料缺失，小威帮你创建了上传医院伤情检查结果的任务。'},
+      {type:'bot', html:'伤情检查结论提取完成 · <b>头皮挫裂伤</b>。'},
       {type:'bot', html:'伤情照片真实性 🟡 → 🟢（因伤情检查结论印证）。'},
       {type:'bot', html:'后果节点三性已齐备。违法事实总结升级到 v3。'},
     ]
   },
-  { // 步骤 5：自书+认罚
+  { // 步骤 6：自书+认罚
     progress:'7/8', mainRel:{cls:'yellow',txt:'补强推进中'},
     miss:'缺·周枫询问笔录',
     factVer:'v3',
@@ -999,11 +1004,11 @@ const STEPS = [
       circumstance: { state:'yellow', status:'补强中', key:'初犯·认错认罚', sub:'认罪认罚相关材料已回写·待笔录确认', bar:['y','g','g'], badges:[3,1,0] },
     },
     msgs:[
-      {type:'bot', html:'办案中心回写：<b>周枫自书</b>（E-009）。'},
-      {type:'bot', html:'物证材料已回写：<b>烟灰缸照片、证据保全决定书、证据保全清单</b>入池。'},
+      {type:'bot', html:'根据嫌疑人证据材料缺失，小威帮你自动生成了《传呼证》并创建了获取<span class="msg-link">嫌疑人供述</span>任务。'},
+      {type:'bot', html:'小威收到办案中心材料：<b>周枫自书材料</b>。'},
     ]
   },
-  { // 步骤 6：嫌疑人笔录（矛盾闭环）
+  { // 步骤 7：嫌疑人笔录（矛盾闭环）
     progress:'8/8', mainRel:{cls:'green',txt:'事实查明'},
     miss:'',
     factVer:'v4',
@@ -1018,13 +1023,13 @@ const STEPS = [
       circumstance: { state:'green', status:'已证实', key:'初犯·主动到案·认错认罚', sub:'前科核验+认罪认罚材料+笔录确认', bar:['g','g','g'], badges:[4,0,0] },
     },
     msgs:[
-      {type:'bot', html:'笔录 Agent 已回写：<b>周枫《询问笔录》</b>(E-011)。'},
+      {type:'bot', html:'小威已笔录 Agent信息：<b>周枫《询问笔录》</b>(E-011)。'},
       {type:'bot', html:'周枫确认：<b>"我拿烟灰缸砸了李江头部"</b>，与李江笔录、证人证言一致。'},
       {type:'bot', html:'工具/经过节点已由笔录、证人证言和烟灰缸保全材料闭环。'},
-      {type:'bot', html:'周枫已签认罚书（E-010）。适用快办程序 · 已生成《行政处罚决定书》草本，请审核。'},
+      {type:'bot', html:'周枫已签认罚书。适用快办程序，已帮你申请快办。'},
     ]
   },
-  { // 步骤 7：处罚签发
+  { // 步骤 8：处罚签发
     progress:'8/8', mainRel:{cls:'green',txt:'事实查明'},
     miss:'',
     factVer:'v5',
@@ -1039,9 +1044,10 @@ const STEPS = [
       circumstance: { state:'green', status:'已证实', key:'初犯·认错认罚', sub:'作为量罚情节纳入处罚草本', bar:['g','g','g'], badges:[4,0,0] },
     },
     msgs:[
-      {type:'user', html:'审批通过。'},
+      {type:'bot', html:'快办审批通过，小威已生成<span class="msg-link" onclick="openOriginalFile(\'assets/行政处罚决定书.pdf\');event.stopPropagation();">《行政处罚决定书》</span>、<span class="msg-link" onclick="openOriginalFile(\'assets/行政处罚告知笔录.pdf\');event.stopPropagation();">《行政处罚告知书》</span>，请审核确认<br><span class="confirm-demo">确认</span>'},
+      {type:'user', html:'确认'},
       {type:'bot', html:'《行政处罚决定书》已签发 · 已送达周枫 · 拘留 5 日。'},
-      {type:'bot', html:'案件办结。事实查明，进度 <b>8/8</b>。'},
+      {type:'bot', html:'事实查明，案件办结，并为你生成《发还清单》。'},
     ]
   },
 ];
@@ -1097,6 +1103,10 @@ const MATERIALS = {
     title:'证据保全清单', type:'程序清单', file:'assets/证据保全清单.pdf', owner:'', time:'2026-05-06', source:'办案系统',
     elements:['工具/经过','物证'], excerpt:'登记烟灰缸一件，特征为透明玻璃材质的圆形烟灰缸。'
   },
+  '证据保全审批表': {
+    title:'证据保全审批表', type:'程序文书', file:'assets/证据保全审批表.pdf', owner:'周枫', time:'2026-05-06', source:'办案系统',
+    elements:['工具/经过','程序'], excerpt:'对烟灰缸证据保全事项进行审批，支撑证据保全手续完整。'
+  },
   '医院伤情检查通知单': {
     title:'医院伤情检查通知单', type:'伤情检查', file:'assets/医院伤情检查通知单.pdf', owner:'李江', time:'2026-04-06', source:'办案系统',
     elements:['后果','程序'], excerpt:'通知李江前往医院检查并出具检查结果，作为伤情检查程序材料。'
@@ -1112,6 +1122,10 @@ const MATERIALS = {
   '行政案件立案告知书': {
     title:'行政案件立案告知书', type:'程序文书', file:'assets/行政案件立案告知书.pdf', owner:'李江 / 周枫', time:'2026-04-06 10:20', source:'办案系统',
     elements:['程序','受害人','嫌疑人'], excerpt:'告知案件已立案及相关权利义务，作为非呈请类程序性文书纳入卷宗卡片。'
+  },
+  '接报审批表': {
+    title:'接报审批表', type:'程序文书', file:'assets/接报审批表.pdf', owner:'李江', time:'2026-04-06 10:05', source:'办案系统',
+    elements:['程序','警情'], excerpt:'对接报案信息进行审批确认，支撑案件进入后续办理流程。'
   },
   '行政处罚告知笔录': {
     title:'行政处罚告知笔录', type:'程序笔录', file:'assets/行政处罚告知笔录.pdf', owner:'周枫', time:'2026-04-06 11:30', source:'办案系统',
@@ -1376,7 +1390,7 @@ const NODE_DETAIL_DEFAULT = {
     evidences: [
       { name:'伤情照片(E-003)', tag:'照片', desc:'李江头部明显红肿', bar:['g','g','g'] },
       { name:'体表原始伤情记录表', tag:'检查', desc:'现场检查记录头面部创口及红肿', bar:['g','g','g'] },
-      { name:'医院伤情检查通知单(E-007)', tag:'检查', desc:'已通知医院检查伤情', bar:['g','g','g'] },
+      { name:'医院伤情检查通知单', tag:'检查', desc:'已通知医院检查伤情', bar:['g','g','g'] },
       { name:'伤情检查结论告知书', tag:'告知', desc:'头皮挫裂伤结论已告知', bar:['g','g','g'] },
     ],
     gaps: [],
@@ -1385,7 +1399,7 @@ const NODE_DETAIL_DEFAULT = {
   victim: {
     evidences: [
       { name:'李江身份核验', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'被害人陈述周枫用烟灰缸殴打头部', bar:['y','g','g'] },
+      { name:'李江询问笔录', tag:'笔录', desc:'被害人陈述周枫用烟灰缸殴打头部', bar:['y','g','g'] },
       { name:'李江人像照片(E-002)', tag:'照片', desc:'受害人身份影像', bar:['g','g','g'] },
     ],
     gaps: [],
@@ -1457,7 +1471,23 @@ const STEP2_DETAIL = Object.assign({}, STEP1_DETAIL, {
   },
 });
 
-/* 步骤 3 · 笔录 */
+/* 步骤 3 · 开具证据保全手续：工具节点补齐证据保全决定、清单和审批材料 */
+const STEP3_PRESERVATION_DETAIL = Object.assign({}, STEP2_DETAIL, {
+  tool: {
+    evidences: [
+      { name:'警情概述', tag:'警情', desc:'接警记录指向烟灰缸殴打', bar:['g','g','g'] },
+      { name:'作案工具照片', tag:'工具', desc:'透明玻璃烟灰缸已拍照固定', bar:['g','g','g'] },
+      { name:'现场勘验照片', tag:'现勘', desc:'案发会议室环境已固定', bar:['g','g','g'] },
+      { name:'证据保全决定书', tag:'保全', desc:'对烟灰缸依法扣押三十日', bar:['g','g','g'] },
+      { name:'证据保全清单', tag:'清单', desc:'烟灰缸一件已登记', bar:['g','g','g'] },
+      { name:'证据保全审批表', tag:'审批', desc:'烟灰缸证据保全事项已审批', bar:['g','g','g'] },
+    ],
+    gaps: [],
+    conflicts: []
+  },
+});
+
+/* 步骤 4 · 笔录 */
 const STEP3_DETAIL = {
   conseq: {
     evidences: [
@@ -1484,7 +1514,7 @@ const STEP3_DETAIL = {
     evidences: [
       { name:'李江人像照片(E-002)', tag:'照片', desc:'被害人正面像', bar:['g','g','g'] },
       { name:'李江身份核验', tag:'核验', desc:'李江·身份证一致', bar:['g','g','g'] },
-      { name:'李江询问笔录(E-006)', tag:'笔录', desc:'被害人陈述周枫用烟灰缸殴打头部', bar:['y','g','g'] },
+      { name:'李江询问笔录', tag:'笔录', desc:'被害人陈述周枫用烟灰缸殴打头部', bar:['y','g','g'] },
       { name:'行政案件立案告知书', tag:'程序', desc:'立案告知已完成', bar:['g','g','g'] },
     ],
     gaps: [],
@@ -1534,7 +1564,7 @@ const STEP4_DETAIL = Object.assign({}, STEP3_DETAIL, {
     evidences: [
       { name:'伤情照片(E-003)', tag:'照片', desc:'李江头部明显红肿', bar:['g','g','g'] },
       { name:'体表原始伤情记录表', tag:'检查', desc:'现场检查记录头面部创口及红肿', bar:['g','g','g'] },
-      { name:'医院伤情检查通知单(E-007)', tag:'检查', desc:'已通知医院检查伤情', bar:['g','g','g'] },
+      { name:'医院伤情检查通知单', tag:'检查', desc:'已通知医院检查伤情', bar:['g','g','g'] },
       { name:'伤情检查结论告知书', tag:'告知', desc:'头皮挫裂伤结论已告知', bar:['g','g','g'] },
     ],
     gaps: [],
@@ -1576,7 +1606,7 @@ const STEP5_DETAIL = {
     evidences: [
       { name:'前科核验回写', tag:'核验', desc:'周枫·初犯记录', bar:['g','g','g'] },
       { name:'周枫自书(E-009)', tag:'自书', desc:'主动表示愿意承担责任', bar:['y','g','g'] },
-      { name:'快速办理权利义务告知书(E-010)', tag:'告知', desc:'已知悉并同意适用快速办理程序', bar:['g','g','g'] },
+      { name:'快速办理权利义务告知书', tag:'告知', desc:'已知悉并同意适用快速办理程序', bar:['g','g','g'] },
     ],
     gaps: [
       { title:'缺：周枫询问笔录确认', action:'对认错认罚、主动到案等情节制作笔录确认' }
@@ -1617,7 +1647,7 @@ const STEP6_DETAIL = {
   circumstance: {
     evidences: [
       { name:'前科核验回写', tag:'核验', desc:'周枫·初犯记录', bar:['g','g','g'] },
-      { name:'认罪认罚材料(E-010)', tag:'认罚', desc:'对违法事实和拟处罚无异议', bar:['g','g','g'] },
+      { name:'认罪认罚材料', tag:'认罚', desc:'对违法事实和拟处罚无异议', bar:['g','g','g'] },
       { name:'快速办理权利义务告知书', tag:'告知', desc:'适用快速办理程序材料齐备', bar:['g','g','g'] },
       { name:'行政处罚告知笔录', tag:'程序', desc:'处罚告知阶段确认无异议', bar:['g','g','g'] },
     ],
@@ -1627,7 +1657,7 @@ const STEP6_DETAIL = {
 };
 
 /* 阶段化详情查询 */
-const DETAIL_BY_STEP = { 1: STEP1_DETAIL, 2: STEP2_DETAIL, 3: STEP3_DETAIL, 4: STEP4_DETAIL, 5: STEP5_DETAIL, 6: STEP6_DETAIL, 7: STEP6_DETAIL };
+const DETAIL_BY_STEP = { 1: STEP1_DETAIL, 2: STEP2_DETAIL, 3: STEP3_PRESERVATION_DETAIL, 4: STEP3_DETAIL, 5: STEP4_DETAIL, 6: STEP5_DETAIL, 7: STEP6_DETAIL, 8: STEP6_DETAIL };
 function getNodeDetail(id, step) {
   const stepMap = DETAIL_BY_STEP[step];
   if (stepMap && stepMap[id]) return stepMap[id];
@@ -2107,7 +2137,6 @@ function renderDetail(id, kind) {
         return `
         <div class="evidence-card">
           <div class="ev-head"><span class="ev-name">${materialTitle(ev.name)}</span><span class="ev-tag">${ev.tag}</span></div>
-          <div class="ev-desc">→ ${ev.desc}</div>
           ${mat ? `<div class="ev-meta">
             <span><b>类型</b> ${escapeHtml(mat.type || '—')}</span><span><b>来源</b> ${escapeHtml(mat.source || '—')}</span>
             <span><b>形成</b> ${escapeHtml(mat.time || '—')}</span><span><b>人员</b> ${escapeHtml(mat.owner || '—')}</span>
@@ -2192,7 +2221,7 @@ function appendMsg(m) {
         <div class="conflict-col"><div class="src">笔录·李江</div><div class="val">烟灰缸砸伤头部</div></div>
       </div>
       <div class="investigation"><b>智能分析：</b><br>证人吴渔证言和证据保全清单共同印证工具/经过节点。</div>
-      <div class="tasks">关联材料：作案工具照片、证据保全决定书、调取证据清单</div>
+      <div class="tasks">关联材料：作案工具照片、证据保全决定书、证据保全清单</div>
       <span class="view-conflict" onclick="expandNode('tool')">查看工具材料 →</span>
       <span class="ts">10:32</span>
     `;
@@ -2209,7 +2238,6 @@ function now() {
   const d = new Date();
   return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 }
-
 /* ===== 跳转矛盾 ===== */
 function jumpToConflict(nodeId) {
   switchTab('graph');
@@ -2229,20 +2257,9 @@ function jumpToConflict(nodeId) {
 function switchStep(n) {
   currentStep = n;
   const s = STEPS[n];
-  // 顶部进度环 / 主关系 / 缺证
-  $('#progNum').textContent = s.progress;
-  const arc = $('#progArc');
-  const total = parseFloat(s.progress.split('/')[1]);
-  const done = parseFloat(s.progress.split('/')[0]);
-  const C = 2 * Math.PI * 18; // 113.1
-  arc.setAttribute('stroke-dasharray', C);
-  arc.setAttribute('stroke-dashoffset', C * (1 - done/total));
-  arc.setAttribute('stroke', s.mainRel.cls === 'green' ? '#22c55e' : s.mainRel.cls === 'yellow' ? '#eab308' : '#ef4444');
+  // 顶部主关系
   $('#mainRel').className = 'main-rel ' + s.mainRel.cls;
   $('#mainRel').textContent = s.mainRel.txt;
-  const mp = $('#missPill');
-  if (s.miss) { mp.className = 'miss-pill'; mp.textContent = s.miss; }
-  else { mp.className = 'miss-pill ok'; mp.textContent = '✓ 证据齐备'; }
 
   // 违法事实
   $('#factVer').textContent = s.factVer;
@@ -2266,7 +2283,7 @@ function switchStep(n) {
 
   // 阶段 chip
   if (n <= 2) $('#chipStage').textContent = 'S2 行政立案';
-  else if (n === 6) {
+  else if (n === 7) {
     document.querySelectorAll('.stage-chips .chip').forEach((c,i) => { c.className = 'chip done'; });
   } else $('#chipStage').textContent = 'S3 案件办理';
 
@@ -2279,11 +2296,11 @@ function switchStep(n) {
   renderMsgs();
 
   // Toast
-  const stepName = ['','警情接入','程序核验','受害人笔录','伤情检查结论','自书+认罚','嫌疑人笔录','处罚签发'][n];
+  const stepName = ['','警情接入','程序核验','开具证据保全手续','受害人笔录','伤情检查结论','自书+认罚','嫌疑人笔录','处罚签发'][n];
   showToast('已切换到步骤 ' + n + '：' + stepName, 'success');
 
-  // 步骤 3 自动滚动到矛盾消息
-  if (n === 3) {
+  // 步骤 4 自动滚动到笔录消息
+  if (n === 4) {
     setTimeout(() => {
       const cont = $('#msgs');
       cont.scrollTop = cont.scrollHeight;
@@ -2431,7 +2448,7 @@ function renderEvi() {
     <div class="list-card" onclick="openMaterialDrawerByName('${escapeAttr(e.name)}')" style="cursor:pointer;">
       <h4>${e.id} · ${e.name}</h4>
       <div class="meta">[${e.tag}] · 来源：${e.src}</div>
-      <div class="desc">作用：${e.desc}</div>
+      <div class="desc">${e.desc}</div>
       <div class="three-tags">
         ${tagSeg(e.bar[0])} ${tagSeg(e.bar[2])} ${tagSeg(e.bar[1])}
       </div>
@@ -2472,7 +2489,7 @@ function renderLog() {
     { time:'10:05:33', type:'证据采集', cls:'system', role:'system', text:'固证材料入池：受害人人像、嫌疑人人像、受害人伤势、作案工具烟灰缸、现场照片' },
     { time:'10:15:00', type:'伤情检查', cls:'system', role:'system', text:'体表原始伤情记录表记录头面部创口及红肿，并开具医院伤情检查通知单' },
     { time:'11:30:08', type:'情节材料回写', cls:'system', role:'system', text:'情节节点补齐：前科核验无记录，周枫确认主动到案并认错认罚<br>关联证据：前科核验 / 认罪认罚材料 / 周枫询问笔录' },
-    { time:'2026-05-06', type:'物证保全', cls:'human', role:'human', text:'烟灰缸证据保全决定书、证据保全清单、调取证据通知书、调取证据清单及发还清单已纳入工具/经过节点' },
+    { time:'2026-05-06', type:'物证保全', cls:'human', role:'human', text:'烟灰缸证据保全决定书、证据保全清单、证据保全审批表及发还清单已纳入工具/经过节点' },
   ];
   $('#logList').innerHTML = logs.map(l => `
     <div class="log-line ${l.cls}">
@@ -2507,7 +2524,7 @@ document.addEventListener('keydown', e => {
     closeMaterialDrawer();
   }
   if (e.key === 'ArrowRight' || e.key === ' ') {
-    if (currentStep < 7) switchStep(currentStep + 1);
+    if (currentStep < 8) switchStep(currentStep + 1);
     e.preventDefault();
   }
   if (e.key === 'ArrowLeft') {
