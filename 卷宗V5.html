@@ -1219,7 +1219,15 @@ const MATERIALS = {
 
 function materialForName(name) {
   const clean = name.replace(/\([^)]*\)|（[^）]*）/g, '').trim();
+  const backendMaterial = apiState.materials.find(m => clean.includes(m.title) || m.title.includes(clean) || clean.includes(m.material_type));
+  if (backendMaterial) return materialFromApi(backendMaterial);
   return MATERIALS[clean] || Object.keys(MATERIALS).map(k => ({ k, m:MATERIALS[k] })).find(x => clean.includes(x.k) || x.k.includes(clean))?.m;
+}
+function materialFromApi(m) {
+  return {
+    title:m.title, type:m.material_type, file:m.file_path || '', owner:m.owner, time:'—', source:m.source || '后端回写',
+    elements:m.supports_elements || [], excerpt:Object.keys(m.extracted_facts || {}).length ? JSON.stringify(m.extracted_facts) : `${m.material_type} 已入池`,
+  };
 }
 
 function escapeAttr(s) { return String(s || '').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1264,7 +1272,7 @@ function openMaterialDrawer(m) {
           ${seven.map(([k,v]) => `<div class="material-element-row"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v || '—')}</div></div>`).join('')}
         </div>
       ` : ''}
-      <button class="material-open-btn" onclick="openOriginalFile('${escapeAttr(m.file)}');event.stopPropagation();">打开源文件</button>
+      ${m.file ? `<button class="material-open-btn" onclick="openOriginalFile('${escapeAttr(m.file)}');event.stopPropagation();">打开源文件</button>` : '<button class="material-open-btn" disabled>暂无源文件</button>'}
     </div>
   `;
   $('#materialDrawer').classList.add('show');
@@ -1680,10 +1688,86 @@ let viewScale = 1;
 let viewX = 0, viewY = 0;
 let suppressCanvasClick = false;
 let edgeAnimationFrame = null;
+let backendMode = false;
+let apiState = { caseId:null, graph:null, tasks:[], materials:[], drafts:[], events:[], factVersions:[] };
 
 /* ===== DOM 工具 ===== */
 const $ = sel => document.querySelector(sel);
 const create = (tag, cls) => { const el = document.createElement(tag); if (cls) el.className = cls; return el; };
+const API_BASE = new URLSearchParams(location.search).get('api') || 'http://127.0.0.1:8000';
+const CASE_ID = new URLSearchParams(location.search).get('caseId');
+
+async function apiGet(path) {
+  const response = await fetch(API_BASE + path);
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+async function apiPost(path, payload) {
+  const response = await fetch(API_BASE + path, {
+    method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(payload || {})
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+async function loadBackendState() {
+  if (!CASE_ID) return false;
+  const [graph, tasks, materials, drafts, events, factVersions] = await Promise.all([
+    apiGet(`/api/cases/${CASE_ID}/graph`),
+    apiGet(`/api/cases/${CASE_ID}/tasks`),
+    apiGet(`/api/cases/${CASE_ID}/materials`),
+    apiGet(`/api/cases/${CASE_ID}/drafts`),
+    apiGet(`/api/cases/${CASE_ID}/conversations/events`),
+    apiGet(`/api/cases/${CASE_ID}/fact-versions`),
+  ]);
+  apiState = { caseId:CASE_ID, graph, tasks, materials, drafts, events, factVersions };
+  backendMode = true;
+  return true;
+}
+async function refreshBackendState() {
+  if (!backendMode) return;
+  try {
+    await loadBackendState();
+    renderBackendGraph();
+    renderMsgs();
+    if (document.querySelector('[data-pane="task"]').classList.contains('active')) renderTask();
+    if (document.querySelector('[data-pane="evi"]').classList.contains('active')) renderEvi();
+  } catch (err) {
+    showToast('后端数据刷新失败，继续显示当前状态', 'error');
+  }
+}
+
+function elementKeyToNodeId(key) {
+  return ({ consequence:'conseq', tool:'tool', victim:'victim', suspect:'suspect', circumstance:'circumstance', time:'time', witness:'witness' })[key] || key;
+}
+function elementStatusToState(status) {
+  return status === 'conflict' ? 'red' : status === 'proved' ? 'green' : status === 'reinforcing' ? 'yellow' : 'yellow';
+}
+function elementStatusLabel(status) {
+  return status === 'conflict' ? '有矛盾' : status === 'proved' ? '已证实' : status === 'reinforcing' ? '补强中' : '待补强';
+}
+function renderBackendGraph() {
+  if (!backendMode || !apiState.graph) return;
+  const nodes = {};
+  apiState.graph.elements.forEach(e => {
+    const id = elementKeyToNodeId(e.element_key);
+    nodes[id] = {
+      state: elementStatusToState(e.status),
+      status: elementStatusLabel(e.status),
+      key: e.key_fact || e.name,
+      sub: `${e.material_count} 份材料 · ${e.gap_count} 个缺口 · ${e.conflict_count} 个矛盾`,
+      bar: ['g','g','g'],
+      badges: [e.material_count, e.gap_count, e.conflict_count]
+    };
+  });
+  STEPS[currentStep].nodes = Object.assign({}, STEPS[currentStep].nodes, nodes);
+  const latest = apiState.factVersions[apiState.factVersions.length - 1];
+  if (latest) {
+    $('#factVer').textContent = latest.version;
+    $('#factBody').textContent = latest.fact_summary;
+  }
+  renderNodes();
+  updateEdgesForExpanded();
+}
 
 /* ===== 渲染节点（viewport 坐标系，不再缩放） ===== */
 function renderNodes() {
@@ -2203,8 +2287,38 @@ function confirmCf(cfId) {
 /* ===== 渲染消息 ===== */
 function renderMsgs() {
   const cont = $('#msgs'); cont.innerHTML = '';
-  allMsgs.forEach(m => appendMsg(m));
+  if (backendMode) {
+    apiState.events.map(eventToMessage).forEach(m => appendMsg(m));
+    apiState.drafts.filter(d => d.status === 'pending_confirmation').forEach(d => appendMsg(draftToMessage(d)));
+  } else {
+    allMsgs.forEach(m => appendMsg(m));
+  }
   cont.scrollTop = cont.scrollHeight;
+}
+function eventToMessage(e) {
+  const type = e.source_role === '民警' ? 'user' : 'bot';
+  return { type, html:escapeHtml(e.original_text || e.normalized_text), time:'' };
+}
+function draftToMessage(d) {
+  return {
+    type:'bot',
+    html:`AI 建议：<b>${escapeHtml(d.title)}</b><br><span class="msg-link" onclick="confirmDraft(${d.id});event.stopPropagation();">确认</span> · <span class="msg-link" onclick="rejectDraft(${d.id});event.stopPropagation();">驳回</span>`,
+    time:''
+  };
+}
+async function confirmDraft(id) {
+  try {
+    await apiPost(`/api/drafts/${id}/confirm`, { reviewer:'前端演示' });
+    showToast('已确认 AI 建议', 'success');
+    await refreshBackendState();
+  } catch (err) { showToast('确认失败', 'error'); }
+}
+async function rejectDraft(id) {
+  try {
+    await apiPost(`/api/drafts/${id}/reject`, { reviewer:'前端演示', reason:'前端驳回' });
+    showToast('已驳回 AI 建议', 'success');
+    await refreshBackendState();
+  } catch (err) { showToast('驳回失败', 'error'); }
 }
 function appendMsg(m) {
   const cont = $('#msgs');
@@ -2292,6 +2406,7 @@ function switchStep(n) {
   expandedId = null;
   Object.values(NODES).forEach(m => { delete m._curX; delete m._curY; });
   renderNodes();
+  if (backendMode) renderBackendGraph();
   updateEdgesForExpanded();
   renderMsgs();
 
@@ -2413,22 +2528,34 @@ function toggleHistory() {
   const d = $('#histDrawer');
   d.classList.toggle('show');
   if (d.classList.contains('show')) {
-    $('#histBody').innerHTML = HIST.map((h, i) => `
+    const hist = backendMode && apiState.factVersions.length
+      ? apiState.factVersions.slice().reverse().map(v => ({ v:v.version, name:v.confirmed_by || '后端版本', time:'—', text:v.fact_summary }))
+      : HIST;
+    $('#histBody').innerHTML = hist.map((h, i) => `
       <div class="ver-item ${i===0?'active':''}" onclick="selectVer(${i})">
         <div class="vt">${h.v} · ${h.name}</div>
         <div class="vd">${h.time}</div>
       </div>
-    `).join('') + `<div class="ver-preview" id="verPrev">${HIST[0].text}</div>`;
+    `).join('') + `<div class="ver-preview" id="verPrev">${escapeHtml(hist[0]?.text || '暂无事实版本')}</div>`;
+    window.__currentHist = hist;
   }
 }
 function selectVer(i) {
+  const hist = window.__currentHist || HIST;
   document.querySelectorAll('.ver-item').forEach((it, j) => it.classList.toggle('active', i===j));
-  $('#verPrev').textContent = HIST[i].text;
+  $('#verPrev').textContent = hist[i]?.text || '';
 }
 
 /* ===== 证据池 ===== */
 function renderEvi() {
-  const data = [
+  const data = backendMode ? apiState.materials.map((m, i) => ({
+    id:'E-' + String(m.id || i + 1).padStart(3, '0'),
+    name:m.title,
+    tag:m.material_type,
+    src:m.source || '后端',
+    desc:Object.keys(m.extracted_facts || {}).length ? JSON.stringify(m.extracted_facts) : `${m.material_type} 已入池`,
+    bar:['g','g','g']
+  })) : [
     { id:'E-001', name:'警情概述', tag:'警情', src:'办案系统', desc:'报警称周枫用烟灰缸打伤李江头部', bar:['g','g','g'] },
     { id:'E-002', name:'李江身份核验', tag:'核验', src:'办案系统', desc:'李江身份一致', bar:['g','g','g'] },
     { id:'E-003', name:'伤情照片', tag:'照片', src:'固证精灵', desc:'头部明显红肿及创口', bar:['g↑','g','g'] },
@@ -2464,22 +2591,39 @@ function tagSeg(c) {
 
 /* ===== 任务看板 ===== */
 function renderTask() {
-  const data = [
+  const data = backendMode ? apiState.tasks.map(t => ({
+    id:'T-' + String(t.id).padStart(3, '0'), name:t.title, src:t.source, srcCls:priorityColor(t.priority), status:taskStatusLabel(t.status),
+    assoc:t.element_key || '—', reason:`优先级：${t.priority} · 执行人：${t.assignee_name || '未分配'}`, evis:(t.expected_materials || []).join(' / ') || '—', raw:t
+  })) : [
     { id:'T-010', name:'补齐烟灰缸证据保全材料', src:'物证保全', srcCls:'#16a34a', status:'已完成',
       assoc:'工具/经过', reason:'作案工具从口供材料更新为烟灰缸实物', evis:'E-008 作案工具照片 / E-010 证据保全决定书 / E-011 证据保全清单' },
     { id:'T-006', name:'核验情节材料', src:'程序核验', srcCls:'#16a34a', status:'已完成',
       assoc:'情节', reason:'核验前科并确认认罪认罚材料齐备', evis:'前科核验 / 认罪认罚材料 / 周枫询问笔录' },
   ];
-  $('#taskGrid').innerHTML = data.map(t => `
+  $('#taskGrid').innerHTML = data.length ? data.map(t => `
     <div class="list-card" style="border-left:4px solid ${t.srcCls}">
-      <h4>${t.id} · ${t.name}</h4>
-      <div class="meta">[${t.src}] · ${t.status}</div>
-      <div class="desc">关联要素：${t.assoc}<br>触发原因：${t.reason}<br>关联证据：${t.evis}</div>
+      <h4>${escapeHtml(t.id)} · ${escapeHtml(t.name)}</h4>
+      <div class="meta">[${escapeHtml(t.src)}] · ${escapeHtml(t.status)}</div>
+      <div class="desc">关联要素：${escapeHtml(t.assoc)}<br>触发原因：${escapeHtml(t.reason)}<br>关联证据：${escapeHtml(t.evis)}</div>
       <div class="three-tags">
-        <button class="tag-mini" style="background:#2563eb;cursor:pointer;" onclick="expandNode('tool')">查看工具材料</button>
+        <button class="tag-mini" style="background:#2563eb;cursor:pointer;" onclick="expandNode('${elementKeyToNodeId(t.raw?.element_key || 'tool')}')">查看关联要素</button>
+        ${backendMode && ['pending','blocked'].includes(t.raw?.status) ? `<button class="tag-mini" style="background:#16a34a;cursor:pointer;" onclick="startBackendTask(${t.raw.id})">启动</button>` : ''}
       </div>
     </div>
-  `).join('');
+  `).join('') : '<div class="list-card"><h4>暂无任务</h4><div class="desc">后端当前没有任务记录。</div></div>';
+}
+function priorityColor(priority) {
+  return priority === 'P0' ? '#dc2626' : priority === 'P1' ? '#d97706' : '#16a34a';
+}
+function taskStatusLabel(status) {
+  return ({ pending:'待启动', blocked:'阻塞', in_progress:'执行中', completed:'已完成', waiting_upload:'待上传', pending_approval:'待审批' })[status] || status;
+}
+async function startBackendTask(id) {
+  try {
+    await apiPost(`/api/tasks/${id}/start`, {});
+    showToast('任务已启动', 'success');
+    await refreshBackendState();
+  } catch (err) { showToast('任务启动失败', 'error'); }
 }
 
 /* ===== 决策日志 ===== */
@@ -2533,10 +2677,20 @@ document.addEventListener('keydown', e => {
 });
 
 /* ===== 初始化 ===== */
-bindCanvasInteractions();
-switchStep(1);
-// 初次根据画布大小自适应一次
-setTimeout(fitView, 50);
+async function initApp() {
+  bindCanvasInteractions();
+  try {
+    const loaded = await loadBackendState();
+    if (loaded) showToast('已连接后端 Case #' + CASE_ID, 'success');
+  } catch (err) {
+    backendMode = false;
+    showToast('未连接后端，使用静态演示数据', 'error');
+  }
+  switchStep(1);
+  if (backendMode) renderBackendGraph();
+  setTimeout(fitView, 50);
+}
+initApp();
 window.addEventListener('resize', () => { fitView(); });
 </script>
 </body>

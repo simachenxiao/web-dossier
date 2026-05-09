@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>卷宗 V5 · 任务驱动工作台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <div class="brand-mark">卷</div>
+        <div>
+          <div class="brand-title">卷宗 V5</div>
+          <div class="brand-sub">任务驱动办案工作台</div>
+        </div>
+      </div>
+
+      <section class="panel case-panel">
+        <div class="panel-title">案件连接</div>
+        <label>API 地址</label>
+        <input id="apiBaseInput" value="http://127.0.0.1:8000" />
+        <label>Case ID</label>
+        <div class="inline-form">
+          <input id="caseIdInput" placeholder="例如 19" />
+          <button id="loadCaseBtn">加载</button>
+        </div>
+        <button class="wide ghost" id="createCaseBtn">创建演示案件</button>
+        <div class="case-card" id="caseCard">
+          <div class="muted">尚未加载案件</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">事实版本</div>
+        <div id="factVersionList" class="version-list empty">暂无事实版本</div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <h1>对话处理 AI + 任务驱动 AI</h1>
+          <p>从办案对话生成确认草稿，确认后进入任务中心，任务结果回流材料池和七要素图谱。</p>
+        </div>
+        <div class="status-pill" id="connectionStatus">未连接</div>
+      </header>
+
+      <section class="summary-grid">
+        <div class="metric">
+          <span>图谱要素</span>
+          <strong id="metricElements">0</strong>
+        </div>
+        <div class="metric">
+          <span>任务</span>
+          <strong id="metricTasks">0</strong>
+        </div>
+        <div class="metric">
+          <span>材料</span>
+          <strong id="metricMaterials">0</strong>
+        </div>
+        <div class="metric danger">
+          <span>待确认</span>
+          <strong id="metricDrafts">0</strong>
+        </div>
+      </section>
+
+      <section class="board">
+        <div class="left-stack">
+          <section class="card graph-card">
+            <div class="card-head">
+              <div>
+                <h2>七要素图谱</h2>
+                <p>材料、缺口、矛盾决定节点状态。</p>
+              </div>
+              <button class="ghost" id="runLoopBtn">运行图谱循环</button>
+            </div>
+            <div class="graph" id="graph"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>材料池</h2>
+                <p>任务回流和人工上传后的材料。</p>
+              </div>
+              <button class="ghost" id="refreshBtn">刷新</button>
+            </div>
+            <div class="material-grid" id="materialGrid"></div>
+          </section>
+        </div>
+
+        <div class="right-stack">
+          <section class="card chat-card">
+            <div class="card-head">
+              <div>
+                <h2>办案对话</h2>
+                <p>输入自然语言，后端生成事件和 AI 草稿。</p>
+              </div>
+            </div>
+            <div class="messages" id="messages"></div>
+            <div class="composer">
+              <select id="sourceRoleInput">
+                <option value="民警">民警</option>
+                <option value="办案 Agent">办案 Agent</option>
+                <option value="笔录 Agent">笔录 Agent</option>
+                <option value="领导">领导</option>
+              </select>
+              <input id="messageInput" placeholder="例如：请制作李江询问笔录。" />
+              <button id="sendMessageBtn">发送</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>确认墙</h2>
+                <p>AI 结果必须确认后才会写入任务、材料或事实。</p>
+              </div>
+            </div>
+            <div class="draft-list" id="draftList"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>任务中心</h2>
+                <p>启动任务、分派执行者、回写结果。</p>
+              </div>
+            </div>
+            <div class="task-list" id="taskList"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="resultDialog">
+    <form method="dialog" class="dialog-card">
+      <h3 id="dialogTitle">回写任务结果</h3>
+      <input type="hidden" id="dialogTaskId" />
+      <label>结果类型</label>
+      <select id="resultTypeInput">
+        <option value="material">材料回流</option>
+        <option value="approval">审批结果</option>
+        <option value="fact_update">事实更新</option>
+        <option value="status">仅完成状态</option>
+      </select>
+      <label>结果 JSON</label>
+      <textarea id="resultPayloadInput" rows="10"></textarea>
+      <div class="dialog-actions">
+        <button value="cancel" class="ghost">取消</button>
+        <button id="submitResultBtn" value="default">提交回写</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
